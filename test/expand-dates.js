@@ -4,7 +4,7 @@ import moment from 'moment';
 import expandDates from '../frontend/expand-dates.js'
 
 const assertTime = (actualDate, expectedString) => {
-  assert.equal(moment(actualDate).format('YYYY-MM-DD HH:mm'), expectedString);
+  assert.equal(moment.utc(actualDate).format('YYYY-MM-DD HH:mm'), expectedString);
 };
 
 suite('expandDates', () => {

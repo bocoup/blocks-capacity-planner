@@ -7,8 +7,8 @@ import moment from 'moment';
  * @returns {Array<Date>}
  */
 export default function expandDates(startDate, endDate, times) {
-  const current = moment(startDate);
-  const end = moment(endDate);
+  const current = moment.utc(startDate);
+  const end = moment.utc(endDate);
   const all = [];
 
   while (current <= end) {
