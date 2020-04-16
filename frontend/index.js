@@ -1,56 +1,83 @@
 import {
     Box,
-    Text,
     Button,
+    FormField,
+    Input,
+    TablePickerSynced,
+    Text,
+    ViewPickerSynced,
     initializeBlock,
+    loadCSSFromString,
+    useGlobalConfig,
 } from '@airtable/blocks/ui';
 import {base} from '@airtable/blocks';
 import React, {useState} from 'react';
+import expandDates from './expand-dates';
 
-async function DeliveryBuilder({onProgress}) {
-  // based on https://community.airtable.com/t/create-recurring-orders/28661
-  const ordersTable = base.getTable('Orders');
-  const deliveriesTable = base.getTable('Deliveries');
-  const orders = ordersTable.selectRecords();
+const dayOfWeekToNumber = {
+    Sun: 0,
+    Mon: 1,
+    Tue: 2,
+    Wed: 3,
+    Thu: 4,
+    Fri: 5,
+    Sat: 6,
+};
 
-  await orders.loadDataAsync();
+function useArray() {
+    const [count, setCount] = useState(0);
+    const [array] = useState([]);
+    return [array, (element) => {
+        array.push(element);
+        setCount((count) => count + 1);
+    }];
+}
 
-  const dayOfWeekToNumber = {
-      Sun: 0,
-      Mon: 1,
-      Tue: 2,
-      Wed: 3,
-      Thu: 4,
-      Fri: 5,
-      Sat: 6,
-  };
+function getDateFromString(dateString) {
+    // Assumes dateString is yyyy-mm-dd
+    const parts = dateString.split('-').map(part => parseFloat(part));
+    const date = new Date();
+    date.setFullYear(parts[0]);
+    date.setMonth(parts[1] - 1);
+    date.setDate(parts[2]);
+    date.setHours(0, 0, 0, 0);
+    return date;
+}
 
-  for (const order of orders.records) {
-      if (order.getCellValue('Deliveries')) {
-          // Skip it, the deliveries were already created.
+function getStringFromDate(date) {
+    // Returns yyyy-mm-dd string.
+    return [
+        date.getFullYear(),
+        (date.getMonth() + 1).toString().padStart(2, '0'),
+        date.getDate().toString().padStart(2, '0'),
+    ].join('-');
+}
+
+async function build({startDate, endDate, recipients, onProgress}) {
+  await recipients.loadDataAsync();
+
+  for (const recipient of recipients.records) {
+      const name = recipient.name;
+      // TODO: parameterize field name
+      const deliveryTimes = await recipient.selectLinkedRecordsFromCellAsync(
+          'Delivery Times'
+      );
+      if (deliveryTimes.records.length === 0) {
+          onProgress(`Skipping "${name}" because it has zero delivery times.`);
           continue;
       }
 
-      const name = order.name;
-      const startDateString = order.getCellValue('Start Date');
-      const endDateString = order.getCellValue('End Date');
-      const daysOfWeek = order.getCellValue('Days of week');
-
-      if (!startDateString) {
-          onProgress(`⚠️ Skipping "${name}" because it does not have a start date.)`);
-          continue;
-      }
-      if (!endDateString) {
-          onProgress(`⚠️ Skipping "${name}" because it does not have an end date.)`);
-          continue;
-      }
-      if (!daysOfWeek) {
-          onProgress(`⚠️ Skipping "${name}" because it have any "Days of week" to schedule.)`);
-          continue;
-      }
+      const deliveries = expandDates(
+          startDate,
+          endDate,
+          deliveryTimes.records.map((record) => ({
+              day: record.getCellValueAsString('Day of Week'),
+              time: record.getCellValueAsString('Time')
+          }))
+      );
 
       const daysOfWeekSet = new Set();
-      for (const dayOfWeek of daysOfWeek) {
+      for (const time of deliveryTimes) {
           if (!dayOfWeekToNumber.hasOwnProperty(dayOfWeek.name)) {
               throw new Error(`Unexpected day of week: ${dayOfWeek.name}`);
           }
@@ -79,56 +106,73 @@ async function DeliveryBuilder({onProgress}) {
       onProgress(`Creating ${deliveriesToCreate.length} deliveries for "${name}".`);
 
       // Only up to 50 records can be created at one time, so do it in batches.
+      console.log(`creating ${deliveriesToCreate.length} deliveries`);
       while (deliveriesToCreate.length > 0) {
-          deliveriesTable.createRecordsAsync(deliveriesToCreate.slice(0, 50));
+          //deliveriesTable.createRecordsAsync(deliveriesToCreate.slice(0, 50));
           deliveriesToCreate = deliveriesToCreate.slice(50);
       }
   }
 
   onProgress('✅ Done!');
-
-  function getDateFromString(dateString) {
-      // Assumes dateString is yyyy-mm-dd
-      const parts = dateString.split('-').map(part => parseFloat(part));
-      const date = new Date();
-      date.setFullYear(parts[0]);
-      date.setMonth(parts[1] - 1);
-      date.setDate(parts[2]);
-      date.setHours(0, 0, 0, 0);
-      return date;
-  }
-
-  function getStringFromDate(date) {
-      // Returns yyyy-mm-dd string.
-      return [
-          date.getFullYear(),
-          (date.getMonth() + 1).toString().padStart(2, '0'),
-          date.getDate().toString().padStart(2, '0'),
-      ].join('-');
-  }
-
 }
 
-function useArray() {
-    const [count, setCount] = useState(0);
-    const [array] = useState([]);
-    return [array, (element) => {
-        array.push(element);
-        setCount((count) => count + 1);
-    }];
-}
+function DeliveryBuilder({recipientsView, deliveriesTable, children}) {
+  const [messages, pushMessage] = useArray();
+  const recipients = recipientsView && recipientsView.selectRecords();
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
-function CapacityPlanner() {
-    const [messages, pushMessage] = useArray();
+  return <div>
+        <div>
+            <FormField label="Start date" style={{width: '50%', float: 'left' }}>
+                <Input
+                    type="date"
+                    onChange={(event) => setStartDate(event.target.value)}
+                    value={startDate}
+                    />
+            </FormField>
+            <FormField label="End date" style={{width: '50%', float: 'left' }}>
+                <Input
+                    type="date"
+                    onChange={(event) => setEndDate(event.target.value)}
+                    value={endDate}
+                    />
+            </FormField>
+        </div>
 
-    return (
-        <Box>
-        <Button onClick={() => DeliveryBuilder({onProgress: pushMessage})} variant="primary" icon="bolt">
-            Generate Deliveries
+        <Button
+            onClick={() => build({recipients, startDate, endDate, onProgress: pushMessage})}
+            variant="primary"
+            icon="bolt">
+          {children}
         </Button>
+
         <ul>
             {messages.map((message, idx) => <li><Text key={idx}>{message}</Text></li>)}
         </ul>
+    </div>;
+
+}
+
+function CapacityPlanner() {
+    const globalConfig = useGlobalConfig();
+    const recipientsTableId = globalConfig.get('recipientsTableId');
+    const recipientsTable = base.getTableByIdIfExists(recipientsTableId);
+    const recipientsViewId = globalConfig.get('recipientsViewId');
+    const recipientsView = recipientsTable &&
+        recipientsTable.getViewByIdIfExists(recipientsViewId);
+
+    return (
+        <Box>
+        <TablePickerSynced globalConfigKey="recipientsTableId" />
+        <ViewPickerSynced
+            globalConfigKey="recipientsViewId"
+            table={recipientsTable} />
+
+        <DeliveryBuilder
+            recipientsView={recipientsView}>
+            Generate Deliveries
+        </DeliveryBuilder>
         </Box>
     );
 }

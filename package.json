@@ -1,6 +1,8 @@
 {
     "dependencies": {
         "@airtable/blocks": "0.0.45",
+        "mocha": "^7.1.1",
+        "moment": "^2.24.0",
         "react": "^16.13.1",
         "react-dom": "^16.13.1"
     },
@@ -9,7 +11,9 @@
         "eslint-plugin-react": "^7.19.0",
         "eslint-plugin-react-hooks": "^2.5.1"
     },
+    "type": "module",
     "scripts": {
-        "lint": "eslint frontend"
+        "lint": "eslint frontend",
+        "test": "mocha --ui tdd --experimental-modules test"
     }
 }
