@@ -5,14 +5,13 @@ import {
     initializeBlock,
 } from '@airtable/blocks/ui';
 import {base} from '@airtable/blocks';
-import React from 'react';
+import React, {useState} from 'react';
 
-async function DeliveryBuilder() {
+async function DeliveryBuilder({onProgress}) {
   // based on https://community.airtable.com/t/create-recurring-orders/28661
   const ordersTable = base.getTable('Orders');
   const deliveriesTable = base.getTable('Deliveries');
   const orders = ordersTable.selectRecords();
-  let msgs = [];
 
   await orders.loadDataAsync();
 
@@ -38,15 +37,15 @@ async function DeliveryBuilder() {
       const daysOfWeek = order.getCellValue('Days of week');
 
       if (!startDateString) {
-          msgs.push(<Text>⚠️ Skipping &quot;${name}&quot; because it does not have a start date.)</Text>);
+          onProgress(`⚠️ Skipping "${name}" because it does not have a start date.)`);
           continue;
       }
       if (!endDateString) {
-          msgs.push(<Text>⚠️ Skipping &quot;${name}&quot; because it does not have an end date.)</Text>);
+          onProgress(`⚠️ Skipping "${name}" because it does not have an end date.)`);
           continue;
       }
       if (!daysOfWeek) {
-          msgs.push(<Text>⚠️ Skipping &quot;${name}&quot; because it have any &quot;Days of week&quot; to schedule.)</Text>);
+          onProgress(`⚠️ Skipping "${name}" because it have any "Days of week" to schedule.)`);
           continue;
       }
 
@@ -77,7 +76,7 @@ async function DeliveryBuilder() {
           }
       }
 
-      msgs.push(<Text>Creating ${deliveriesToCreate.length} deliveries for &quot;${name}&quot;.</Text>);
+      onProgress(`Creating ${deliveriesToCreate.length} deliveries for "${name}".`);
 
       // Only up to 50 records can be created at one time, so do it in batches.
       while (deliveriesToCreate.length > 0) {
@@ -86,9 +85,7 @@ async function DeliveryBuilder() {
       }
   }
 
-  msgs.push(<Text>✅ Done!</Text>);
-
-  return msgs;
+  onProgress('✅ Done!');
 
   function getDateFromString(dateString) {
       // Assumes dateString is yyyy-mm-dd
@@ -112,23 +109,27 @@ async function DeliveryBuilder() {
 
 }
 
-function CapacityPlanner() {
-    return (
-      <Box
-        position="absolute"
-        top={0}
-        bottom={0}
-        left={0}
-        right={0}
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-      >
-        <Button onClick={DeliveryBuilder} variant="primary" icon="bolt">
-        Generate Deliveries
-        </Button>
+function useArray() {
+    const [count, setCount] = useState(0);
+    const [array] = useState([]);
+    return [array, (element) => {
+        array.push(element);
+        setCount((count) => count + 1);
+    }];
+}
 
-      </Box>
+function CapacityPlanner() {
+    const [messages, pushMessage] = useArray();
+
+    return (
+        <Box>
+        <Button onClick={() => DeliveryBuilder({onProgress: pushMessage})} variant="primary" icon="bolt">
+            Generate Deliveries
+        </Button>
+        <ul>
+            {messages.map((message, idx) => <li><Text key={idx}>{message}</Text></li>)}
+        </ul>
+        </Box>
     );
 }
 
