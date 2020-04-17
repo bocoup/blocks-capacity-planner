@@ -3,6 +3,7 @@ import {
 	Button,
 	FormField,
 	Heading,
+	Icon,
 	ProgressBar,
 	SelectButtons,
 	loadCSSFromString,
@@ -93,12 +94,14 @@ function Day({date, producers, consumers}) {
 
 			<Box display="flex" marginBottom={4}>
 				<ProducerDropZone producers={unassigned} ownerId={null} assign={assign} accept={date}>
-					<Heading as="h3">Restaurants</Heading>
+					<Heading as="h3" style={{fontSize: '1em'}}>unassigned</Heading>
 				</ProducerDropZone>
 
-				<div style={{display: 'flex', flexGrow: 1}}>
-					{consumers.map((consumer) => <Consumer key={consumer.id} consumer={consumer} producers={producers} assign={assign} accept={date}/>)}
-				</div>
+				<table style={{width: '100%', marginLeft: '1em'}}>
+					<tbody>
+						{consumers.map((consumer) => <Consumer key={consumer.id} consumer={consumer} producers={producers} assign={assign} accept={date}/>)}
+					</tbody>
+				</table>
 			</Box>
 		</DndProvider>
 	);
@@ -147,16 +150,42 @@ function Producer({producer, type}) {
 
 function Consumer({consumer, producers, assign, accept}) {
 	const assigned = producers.filter((producer) => producer.assignment === consumer.id);
+	const provided = assigned.reduce((total, producer) => total + producer.capacity, 0);
+	const fulfillment = provided / consumer.need;
+	let icon;
+
+	if (fulfillment < 1) {
+		icon = 'checkboxUnchecked';
+	} else if (fulfillment === 1) {
+		icon = 'checkboxChecked';
+	} else {
+		icon = 'warning';
+	}
+
 	return (
-		<ProducerDropZone
-			producers={assigned}
-			ownerId={consumer.id}
-			assign={assign}
-			accept={accept}
-			>
-			<Heading as="h3" style={{fontSize: '1em'}}>{consumer.name}</Heading>
-			<p>Need: <Rating value={consumer.need} max={consumer.maxneed} min={consumer.minneed} /></p>
-		</ProducerDropZone>
+		<tr>
+			<td width="50%">
+				<ProducerDropZone
+					producers={assigned}
+					ownerId={consumer.id}
+					assign={assign}
+					accept={accept}
+					>
+					<Heading as="h3" style={{fontSize: '1em'}}>{consumer.name}</Heading>
+				</ProducerDropZone>
+			</td>
+			<td style={{width:'10%', textAlign: 'center'}}>
+				{provided} / {consumer.need}
+			</td>
+			<td style={{width: 'calc(40% - 30px)'}}>
+				<Box width={`${100*consumer.need/consumer.maxneed}%`}>
+					<ProgressBar progress={fulfillment} barColor="#888" />
+				</Box>
+			</td>
+			<td style={{width: '30px', textAlign: 'center'}}>
+				<Icon name={icon} />
+			</td>
+		</tr>
 	);
 }
 
