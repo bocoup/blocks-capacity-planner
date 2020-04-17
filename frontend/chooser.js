@@ -1,7 +1,9 @@
 import {
 	Box,
+	Button,
 	FormField,
 	Heading,
+	ProgressBar,
 	SelectButtons,
 } from '@airtable/blocks/ui';
 import {base} from '@airtable/blocks';
@@ -10,7 +12,7 @@ import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import Backend from 'react-dnd-html5-backend';
 
 const containerStyle = {
-	posisition: 'absoluste',
+	position: 'absolute',
 	top: 0,
 	right: 0,
 	bottom: 0,
@@ -170,12 +172,19 @@ export default function Chooser({producers, consumers, dates}) {
 	dates = sampleDates;
 
 	return (
-		<Box padding={2} style={containerStyle}>
-			<ProducerList title="Restaurants" producers={producers} />
-			<Box marginLeft={4}>
-				{dates.map((date) => (
-					<Day key={date} date={date} producers={producers} consumers={consumers} />
-				))}
+		<Box style={{flexDirection: 'column', ...containerStyle}}>
+			<Box padding={2} style={{flexGrow: 1, display: 'flex', overflowY: 'scroll'}}>
+				<ProducerList title="Restaurants" producers={producers} />
+				<Box marginLeft={4}>
+					{dates.map((date) => (
+						<Day key={date} date={date} producers={producers} consumers={consumers} />
+					))}
+				</Box>
+			</Box>
+			<Box padding={3} alignItems="right">
+				<ProgressBar progress={0.4} barColor='#32a852' />
+				Budget: $400 of $1000
+				<Button icon="thumbsUp" variant="primary">Apply Schedule</Button>
 			</Box>
 		</Box>
 	);
