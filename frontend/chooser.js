@@ -6,7 +6,8 @@ import {
 } from '@airtable/blocks/ui';
 import {base} from '@airtable/blocks';
 import React, {useState} from 'react';
-import Multiselect from './multiselect';
+import { DndProvider, useDrag, useDrop } from 'react-dnd';
+import Backend from 'react-dnd-html5-backend';
 
 const containerStyle = {
 	posisition: 'absoluste',
@@ -73,68 +74,93 @@ function ProducerList({title, producers}) {
 	);
 }
 
-class Assignments {
-	constructor() {
-		this.pToC = new Map();
-		this.cToP = new Map();
-	}
+const useProducers = (_producers) => {
+	const [producers, setProducers] = useState(() => _producers.map((producer) => Object.assign({}, producer, {assignment: null})));
+	const assign = (producerId, consumerId) => {
+		setProducers(producers.map((producer) => {
+			return Object.assign(
+				{},
+				producer,
+				producer.id === producerId ? {assignment: consumerId} : null
+			);
+		}));
+	};
 
-	add(consumer, producer) {
-		if (this.pToC.has(producer)) {
-			this.cToP.get(this.pToC.get(producer)).delete(producer);
-		}
-		this.pToC.set(producer, consumer);
-		
-		if (!this.cToP.get(consumer)) {
-			this.cToP.set(consumer, new Set());
-		}
-		this.cToP.get(consumer).add(producer);
-	}
-
-	clear(consumer) {
-		for (const producer of this.cToP.get(consumer) || []) {
-			this.pToC.delete(producer);
-		}
-		this.cToP.delete(consumer);
-	}
-}
+	return [producers, assign];
+};
 
 function Day({date, producers, consumers}) {
-	const [assignments] = useState(new Assignments());
-	const [x, setX] = useState(0);
+	let assign;
+	[producers, assign] = useProducers(producers);
 
-	const assign = (consumer, producers) => {
-		assignments.clear(consumer.id);
-		producers && producers.forEach((producer) => {
-			console.log(consumer, producer);
-			assignments.add(consumer.id, producer.value);
-		});
-		setX((x) => x + 1);
-	};
-	const isOptionDisabled = (producer) => {
-		console.log(producer, assignments.pToC.has(producer.value));
-		return assignments.pToC.has(producer.value);
-	};
+	const unassigned = producers.filter(({assignment}) => assignment === null);
 
 	return (
 		<div>
-			<Heading as="h3" style={{borderBottom: '2px solid #bbb'}}>
-				{date}
-			</Heading>
+			<DndProvider backend={Backend}>
+				<Heading as="h3" style={{borderBottom: '2px solid #bbb'}}>
+					{date}
+				</Heading>
 
-			<div style={{display: 'flex'}}>
-				{consumers.map((consumer, idx) => (
-					<FormField key={consumer.id} margin={2} label={consumer.name}>
-						<Multiselect
-							onChange={assign.bind(null, consumer)}
-							options={producers.map((producer) => ({
-								label: producer.name,
-								value: producer.id,
-							}))} />
-					</FormField>
-				))}
-			</div>
+				<ProducerDropZone
+					title="unassigned"
+					accept={date}
+					producers={unassigned}
+					ownerId={null}
+					assign={assign}
+					/>
+
+				<div style={{display: 'flex'}}>
+					{consumers.map((consumer) => <Consumer key={consumer.id} consumer={consumer} producers={producers} assign={assign} accept={date}/>)}
+				</div>
+			</DndProvider>
 		</div>
+	);
+}
+
+function ProducerDropZone({title, producers, ownerId, assign, accept}) {
+	const [, drop] = useDrop({
+		accept,
+		drop(item) {
+			assign(item.id, ownerId);
+		}
+	});
+
+	return (
+		<div
+			ref={drop}
+			style={{backgroundColor: '#eee', padding: '1em', margin: '1em', width: '100%', display: 'inline-block'}}
+			>
+			<Heading as="h3" style={{fontSize: '1em', marginTop: 0}}>{title}</Heading>
+
+			{producers.map((producer) => <Producer key={producer.id} producer={producer} type={accept} />)}
+		</div>
+	);
+}
+
+function Producer({producer, type}) {
+	const [, drag] = useDrag({
+		item: { id: producer.id, type }
+	});
+	return (
+		<span
+			ref={drag}
+			style={{cursor: 'pointer', border: 'solid 1px #ddd', borderRadius: '0.4em', padding: '0.2em', margin: '0.2em'}}
+			>
+			{producer.name}
+		</span>
+	);
+}
+
+function Consumer({consumer, producers, assign, accept}) {
+	const assigned = producers.filter((producer) => producer.assignment === consumer.id);
+	return (
+		<ProducerDropZone
+			title={consumer.name}
+			producers={assigned}
+			ownerId={consumer.id}
+			assign={assign}
+			accept={accept} />
 	);
 }
 
