@@ -5,11 +5,14 @@ import {
 	Heading,
 	ProgressBar,
 	SelectButtons,
+	loadCSSFromString,
 } from '@airtable/blocks/ui';
 import {base} from '@airtable/blocks';
 import React, {useState} from 'react';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import Backend from 'react-dnd-html5-backend';
+
+import Rating from './rating';
 
 const containerStyle = {
 	position: 'absolute',
@@ -32,49 +35,34 @@ const sampleDates = [
 ];
 
 const hospitals = [
-	'Mass General Hospital',
-	'South Shore Hospital',
-	'Brigham and Women\'s',
-].map((name, index) => ({id: index, name}));
+	{name: 'Mass General Hospital', need: 50},
+	{name: 'South Shore Hospital', need: 30},
+	{name: 'Brigham and Women\'s', need: 40},
+].map((hospital, id) => Object.assign(hospital, {id}));
 
 const restaurants = [
-	'Cici\'s',
-	'Gio\'s',
-	'Main Street Deli',
-	'The Lobster Stop',
-	'Napoli\'s',
-	'Denley\'s',
-	'Little Duck',
-	'The Fat Cat',
-	'The Four\'s',
-].map((name, index) => ({id: index, name}));
+	{name: 'Cici\'s', capacity: 20, price: 15},
+	{name: 'Gio\'s', capacity: 20, price: 10},
+	{name: 'Main Street Deli', capacity: 30, price: 10},
+	{name: 'The Lobster Stop', capacity: 20, price: 35},
+	{name: 'Napoli\'s', capacity: 40, price: 10},
+	{name: 'Denley\'s', capacity: 50, price: 10},
+	{name: 'Little Duck', capacity: 20, price: 15},
+	{name: 'The Fat Cat', capacity: 30, price: 25},
+	{name: 'The Four\'s', capacity: 70, price: 20},
+].map((restaurant, id) => Object.assign(restaurant, {id}));
 
-function ProducerList({title, producers}) {
-	return (
-		<div>
-			<Heading as="h3">{title}</Heading>
-
-			<FormField label="Sort">
-				<SelectButtons
-					value="period"
-					options={[
-						{value: 'period', label: 'This period'},
-						{value: 'avg', label: 'Average since joining'}
-					]}
-					size="small"
-				/>
-			</FormField>
-
-			<ul>
-				{producers.map((producer) => (
-					<li key={producer.id}>
-						{producer.name}
-					</li>
-				))}
-			</ul>
-		</div>
-	);
-}
+loadCSSFromString(`
+	.clearfix:after {
+		content: "\\00A0";
+		display: block;
+		clear: both;
+		visibility: hidden;
+		line-height: 0;
+		height: 0;
+	}
+	.clearfix {display: block}
+`);
 
 const useProducers = (_producers) => {
 	const [producers, setProducers] = useState(() => _producers.map((producer) => Object.assign({}, producer, {assignment: null})));
@@ -98,29 +86,25 @@ function Day({date, producers, consumers}) {
 	const unassigned = producers.filter(({assignment}) => assignment === null);
 
 	return (
-		<div>
-			<DndProvider backend={Backend}>
-				<Heading as="h3" style={{borderBottom: '2px solid #bbb'}}>
-					{date}
-				</Heading>
+		<DndProvider backend={Backend}>
+			<Heading as="h3" style={{borderBottom: '2px solid #bbb'}}>
+				{date}
+			</Heading>
 
-				<ProducerDropZone
-					title="unassigned"
-					accept={date}
-					producers={unassigned}
-					ownerId={null}
-					assign={assign}
-					/>
+			<Box display="flex" marginBottom={4}>
+				<ProducerDropZone producers={unassigned} ownerId={null} assign={assign} accept={date}>
+					<Heading as="h3">Restaurants</Heading>
+				</ProducerDropZone>
 
-				<div style={{display: 'flex'}}>
+				<div style={{display: 'flex', flexGrow: 1}}>
 					{consumers.map((consumer) => <Consumer key={consumer.id} consumer={consumer} producers={producers} assign={assign} accept={date}/>)}
 				</div>
-			</DndProvider>
-		</div>
+			</Box>
+		</DndProvider>
 	);
 }
 
-function ProducerDropZone({title, producers, ownerId, assign, accept}) {
+function ProducerDropZone({children, producers, ownerId, assign, accept}) {
 	const [, drop] = useDrop({
 		accept,
 		drop(item) {
@@ -131,11 +115,12 @@ function ProducerDropZone({title, producers, ownerId, assign, accept}) {
 	return (
 		<div
 			ref={drop}
-			style={{backgroundColor: '#eee', padding: '1em', margin: '1em', width: '100%', display: 'inline-block'}}
 			>
-			<Heading as="h3" style={{fontSize: '1em', marginTop: 0}}>{title}</Heading>
+			{children}
 
-			{producers.map((producer) => <Producer key={producer.id} producer={producer} type={accept} />)}
+			<ul style={{listStyleType: 'none', margin: 0, padding: 0}}>
+				{producers.map((producer) => <Producer key={producer.id} producer={producer} type={accept} />)}
+			</ul>
 		</div>
 	);
 }
@@ -145,12 +130,18 @@ function Producer({producer, type}) {
 		item: { id: producer.id, type }
 	});
 	return (
-		<span
+		<li
 			ref={drag}
+			className="clearfix"
 			style={{cursor: 'pointer', border: 'solid 1px #ddd', borderRadius: '0.4em', padding: '0.2em', margin: '0.2em'}}
 			>
-			{producer.name}
-		</span>
+			<span style={{float: 'left'}}>{producer.name}</span>
+			<Rating
+				style={{float: 'right', marginLeft: '1em'}}
+				value={producer.capacity}
+				min={producer.mincapacity}
+				max={producer.maxcapacity} />
+		</li>
 	);
 }
 
@@ -158,12 +149,24 @@ function Consumer({consumer, producers, assign, accept}) {
 	const assigned = producers.filter((producer) => producer.assignment === consumer.id);
 	return (
 		<ProducerDropZone
-			title={consumer.name}
 			producers={assigned}
 			ownerId={consumer.id}
 			assign={assign}
-			accept={accept} />
+			accept={accept}
+			>
+			<Heading as="h3" style={{fontSize: '1em'}}>{consumer.name}</Heading>
+			<p>Need: <Rating value={consumer.need} max={consumer.maxneed} min={consumer.minneed} /></p>
+		</ProducerDropZone>
 	);
+}
+
+function annotateExtremes(collection, propertyName) {
+	const all = collection.map((item) => item[propertyName]);
+	const extremes = {
+		[`max${propertyName}`]: Math.max(...all),
+		[`min${propertyName}`]: Math.min(...all),
+	};
+	return collection.map((item) => Object.assign({}, item, extremes));
 }
 
 export default function Chooser({producers, consumers, dates}) {
@@ -171,15 +174,16 @@ export default function Chooser({producers, consumers, dates}) {
 	consumers = hospitals;
 	dates = sampleDates;
 
+	consumers = annotateExtremes(consumers, 'need');
+	producers = annotateExtremes(producers, 'capacity');
+	producers = annotateExtremes(producers, 'price');
+
 	return (
 		<Box style={{flexDirection: 'column', ...containerStyle}}>
-			<Box padding={2} style={{flexGrow: 1, display: 'flex', overflowY: 'scroll'}}>
-				<ProducerList title="Restaurants" producers={producers} />
-				<Box marginLeft={4}>
-					{dates.map((date) => (
-						<Day key={date} date={date} producers={producers} consumers={consumers} />
-					))}
-				</Box>
+			<Box padding={2} style={{overflowY: 'scroll'}}>
+				{dates.map((date) => (
+					<Day key={date} date={date} producers={producers} consumers={consumers} />
+				))}
 			</Box>
 			<Box padding={3} alignItems="right">
 				<ProgressBar progress={0.4} barColor='#32a852' />
