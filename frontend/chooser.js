@@ -241,7 +241,7 @@ export default function Chooser({producers, consumers, dates}) {
 			<Box padding={3} display="flex" alignItems="right">
 				<Box paddingRight={3}>
 					<FormField label="Sort producers">
-						<Select disabled="true" options={sortOptions} value={sort} onChange={setSort} />
+						<Select disabled={true} options={sortOptions} value={sort} onChange={setSort} />
 					</FormField>
 				</Box>
 
