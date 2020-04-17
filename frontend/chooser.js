@@ -5,7 +5,7 @@ import {
 	Heading,
 	Icon,
 	ProgressBar,
-	SelectButtons,
+	Select,
 	loadCSSFromString,
 } from '@airtable/blocks/ui';
 import {base} from '@airtable/blocks';
@@ -80,7 +80,7 @@ const useProducers = (_producers) => {
 	return [producers, assign];
 };
 
-function Day({date, producers, consumers}) {
+function Day({date, producers, consumers, producerStat}) {
 	let assign;
 	[producers, assign] = useProducers(producers);
 
@@ -93,13 +93,13 @@ function Day({date, producers, consumers}) {
 			</Heading>
 
 			<Box display="flex" marginBottom={4}>
-				<ProducerDropZone producers={unassigned} ownerId={null} assign={assign} accept={date}>
+				<ProducerDropZone producers={unassigned} ownerId={null} assign={assign} accept={date} stat={producerStat}>
 					<Heading as="h3" style={{fontSize: '1em'}}>unassigned</Heading>
 				</ProducerDropZone>
 
 				<table style={{width: '100%', marginLeft: '1em'}}>
 					<tbody>
-						{consumers.map((consumer) => <Consumer key={consumer.id} consumer={consumer} producers={producers} assign={assign} accept={date}/>)}
+						{consumers.map((consumer) => <Consumer key={consumer.id} consumer={consumer} producers={producers} assign={assign} accept={date} producerStat={producerStat} />)}
 					</tbody>
 				</table>
 			</Box>
@@ -107,7 +107,7 @@ function Day({date, producers, consumers}) {
 	);
 }
 
-function ProducerDropZone({children, producers, ownerId, assign, accept}) {
+function ProducerDropZone({children, producers, ownerId, assign, accept, stat}) {
 	const [, drop] = useDrop({
 		accept,
 		drop(item) {
@@ -122,16 +122,17 @@ function ProducerDropZone({children, producers, ownerId, assign, accept}) {
 			{children}
 
 			<ul style={{listStyleType: 'none', margin: 0, padding: 0}}>
-				{producers.map((producer) => <Producer key={producer.id} producer={producer} type={accept} />)}
+				{producers.map((producer) => <Producer key={producer.id} producer={producer} type={accept} stat={stat} />)}
 			</ul>
 		</div>
 	);
 }
 
-function Producer({producer, type}) {
+function Producer({producer, type, stat}) {
 	const [, drag] = useDrag({
 		item: { id: producer.id, type }
 	});
+
 	return (
 		<li
 			ref={drag}
@@ -139,16 +140,18 @@ function Producer({producer, type}) {
 			style={{cursor: 'pointer', border: 'solid 1px #ddd', borderRadius: '0.4em', padding: '0.2em', margin: '0.2em'}}
 			>
 			<span style={{float: 'left'}}>{producer.name}</span>
-			<Rating
-				style={{float: 'right', marginLeft: '1em'}}
-				value={producer.capacity}
-				min={producer.mincapacity}
-				max={producer.maxcapacity} />
+			{stat ?
+				<Rating
+					style={{float: 'right', marginLeft: '1em'}}
+					value={producer[stat]}
+					min={producer[`min${stat}`]}
+					max={producer[`max${stat}`]} />
+				: ''}
 		</li>
 	);
 }
 
-function Consumer({consumer, producers, assign, accept}) {
+function Consumer({consumer, producers, assign, accept, producerStat}) {
 	const assigned = producers.filter((producer) => producer.assignment === consumer.id);
 	const provided = assigned.reduce((total, producer) => total + producer.capacity, 0);
 	const fulfillment = provided / consumer.need;
@@ -170,6 +173,7 @@ function Consumer({consumer, producers, assign, accept}) {
 					ownerId={consumer.id}
 					assign={assign}
 					accept={accept}
+					stat={producerStat}
 					>
 					<Heading as="h3" style={{fontSize: '1em'}}>{consumer.name}</Heading>
 				</ProducerDropZone>
@@ -198,6 +202,18 @@ function annotateExtremes(collection, propertyName) {
 	return collection.map((item) => Object.assign({}, item, extremes));
 }
 
+const sortOptions = [
+	{value: 'name', label: 'Name'},
+	{value: 'capacity', label: 'Capacity'},
+	{value: 'price', label: 'Price'}
+];
+
+const producerStats = [
+	{value: null, label: 'none'},
+	{value: 'capacity', label: 'Capacity'},
+	{value: 'price', label: 'Price'}
+];
+
 export default function Chooser({producers, consumers, dates}) {
 	producers = restaurants;
 	consumers = hospitals;
@@ -207,16 +223,39 @@ export default function Chooser({producers, consumers, dates}) {
 	producers = annotateExtremes(producers, 'capacity');
 	producers = annotateExtremes(producers, 'price');
 
+	const [sort, setSort] = useState('name');
+	const [producerStat, setProducerStat] = useState(null);
+
 	return (
 		<Box style={{flexDirection: 'column', ...containerStyle}}>
 			<Box padding={2} style={{overflowY: 'scroll'}}>
 				{dates.map((date) => (
-					<Day key={date} date={date} producers={producers} consumers={consumers} />
+					<Day key={date}
+						date={date}
+						producers={producers}
+						consumers={consumers}
+						producerStat={producerStat} />
 				))}
 			</Box>
-			<Box padding={3} alignItems="right">
-				<ProgressBar progress={0.4} barColor='#32a852' />
-				Budget: $400 of $1000
+
+			<Box padding={3} display="flex" alignItems="right">
+				<Box paddingRight={3}>
+					<FormField label="Sort producers">
+						<Select disabled="true" options={sortOptions} value={sort} onChange={setSort} />
+					</FormField>
+				</Box>
+
+				<Box paddingRight={3}>
+					<FormField label="Producer statistic">
+						<Select options={producerStats} value={producerStat} onChange={setProducerStat} />
+					</FormField>
+				</Box>
+
+				<Box flexGrow={1} paddingRight={3}>
+					<ProgressBar progress={0.4} barColor='#32a852' />
+					Budget: $400 of $1000
+				</Box>
+
 				<Button icon="thumbsUp" variant="primary">Apply Schedule</Button>
 			</Box>
 		</Box>
