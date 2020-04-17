@@ -11,6 +11,7 @@ import {base} from '@airtable/blocks';
 import React from 'react';
 
 import DeliveryBuilder from './delivery-builder';
+import Chooser from './chooser';
 
 function CapacityPlanner() {
     const globalConfig = useGlobalConfig();
@@ -21,6 +22,8 @@ function CapacityPlanner() {
     const recipientsViewId = globalConfig.get('recipientsViewId');
     const recipientsView = recipientsTable &&
         recipientsTable.getViewByIdIfExists(recipientsViewId);
+
+    return <Chooser />;
 
     return (
         <Box>
