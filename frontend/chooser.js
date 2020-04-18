@@ -9,10 +9,11 @@ import {
 	loadCSSFromString,
 } from '@airtable/blocks/ui';
 import {base} from '@airtable/blocks';
-import React, {useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import Backend from 'react-dnd-html5-backend';
 
+import fillOrders from './fill-orders';
 import Rating from './rating';
 
 const containerStyle = {
@@ -66,23 +67,42 @@ loadCSSFromString(`
 `);
 
 const useProducers = (_producers) => {
-	const [producers, setProducers] = useState(() => _producers.map((producer) => Object.assign({}, producer, {assignment: null})));
-	const assign = (producerId, consumerId) => {
-		setProducers(producers.map((producer) => {
-			return Object.assign(
-				{},
-				producer,
-				producer.id === producerId ? {assignment: consumerId} : null
-			);
-		}));
-	};
+	const [producers, setProducers] = useState(
+		() => Object.freeze(_producers.map((producer) => Object.freeze(Object.assign({}, producer, {assignment: null}))))
+	);
+	const assign = useCallback(
+		(consumerId, producerId) => {
+			setProducers(Object.freeze(producers.map((producer) => {
+				return Object.freeze(Object.assign(
+					{},
+					producer,
+					producer.id === producerId ? {assignment: consumerId} : null
+				));
+			})));
+		},
+		[producers]
+	);
 
 	return [producers, assign];
 };
 
-function Day({date, producers, consumers, producerStat}) {
-	let assign;
-	[producers, assign] = useProducers(producers);
+function Day({date, producers, consumers, producerStat, onAssign}) {
+	let internalAssign;
+	[producers, internalAssign] = useProducers(producers);
+	const assign = useCallback(
+		(consumerId, producerId) => {
+			internalAssign(consumerId, producerId);
+			onAssign(date, consumerId, producerId);
+		},
+		[date, onAssign, internalAssign]
+	);
+	const unassign = useCallback(
+		(producerId) => {
+			internalAssign(null, producerId);
+			onAssign(date, null, producerId);
+		},
+		[date, onAssign, internalAssign]
+	);
 
 	const unassigned = producers.filter(({assignment}) => assignment === null);
 
@@ -93,13 +113,26 @@ function Day({date, producers, consumers, producerStat}) {
 			</Heading>
 
 			<Box display="flex" marginBottom={4}>
-				<ProducerDropZone producers={unassigned} ownerId={null} assign={assign} accept={date} stat={producerStat}>
+				<ProducerDropZone
+					producers={unassigned}
+					onAssign={unassign}
+					accept={date}
+					stat={producerStat}
+				>
 					<Heading as="h3" style={{fontSize: '1em'}}>unassigned</Heading>
 				</ProducerDropZone>
 
 				<table style={{width: '100%', marginLeft: '1em'}}>
 					<tbody>
-						{consumers.map((consumer) => <Consumer key={consumer.id} consumer={consumer} producers={producers} assign={assign} accept={date} producerStat={producerStat} />)}
+						{consumers.map((consumer) => (
+							<Consumer
+								key={consumer.id}
+								consumer={consumer}
+								producers={producers}
+								onAssign={assign}
+								accept={date}
+								producerStat={producerStat} />
+						))}
 					</tbody>
 				</table>
 			</Box>
@@ -107,18 +140,16 @@ function Day({date, producers, consumers, producerStat}) {
 	);
 }
 
-function ProducerDropZone({children, producers, ownerId, assign, accept, stat}) {
+function ProducerDropZone({children, producers, onAssign, accept, stat}) {
 	const [, drop] = useDrop({
 		accept,
 		drop(item) {
-			assign(item.id, ownerId);
+			onAssign(item.id);
 		}
 	});
 
 	return (
-		<div
-			ref={drop}
-			>
+		<div ref={drop}>
 			{children}
 
 			<ul style={{listStyleType: 'none', margin: 0, padding: 0}}>
@@ -151,7 +182,14 @@ function Producer({producer, type, stat}) {
 	);
 }
 
-function Consumer({consumer, producers, assign, accept, producerStat}) {
+function Consumer({consumer, producers, onAssign, accept, producerStat}) {
+	const assign = useCallback(
+		(producerId) => {
+			onAssign(consumer.id, producerId);
+		},
+		[onAssign, consumer.id]
+	);
+
 	const assigned = producers.filter((producer) => producer.assignment === consumer.id);
 	const provided = assigned.reduce((total, producer) => total + producer.capacity, 0);
 	const fulfillment = provided / consumer.need;
@@ -170,8 +208,7 @@ function Consumer({consumer, producers, assign, accept, producerStat}) {
 			<td width="50%">
 				<ProducerDropZone
 					producers={assigned}
-					ownerId={consumer.id}
-					assign={assign}
+					onAssign={assign}
 					accept={accept}
 					stat={producerStat}
 					>
@@ -214,6 +251,32 @@ const producerStats = [
 	{value: 'price', label: 'Price'}
 ];
 
+const purchaseStrategies = [
+	{value: 'cheap', label: 'Cheap'},
+	{value: 'fair', label: 'Fair'}
+];
+
+function useAssignments(initial) {
+	const [assignments, setAssignments] = useState(Object.freeze(initial));
+	const assign = (date, consumerId, producerId) => {
+		const newAssignments = assignments
+			.filter((assignment) => {
+				return !(
+					assignment.date === date &&
+					assignment.producerId === producerId
+				);
+			});
+
+		if (consumerId !== null) {
+			newAssignments.push({date, consumerId, producerId});
+		}
+
+		setAssignments(Object.freeze(newAssignments));
+	};
+
+	return [assignments, assign];
+}
+
 export default function Chooser({producers, consumers, dates}) {
 	producers = restaurants;
 	consumers = hospitals;
@@ -225,6 +288,17 @@ export default function Chooser({producers, consumers, dates}) {
 
 	const [sort, setSort] = useState('name');
 	const [producerStat, setProducerStat] = useState(null);
+	const [strategy, setStrategy] = useState('cheap');
+	const [assignments, assign] = useAssignments([]);
+
+	const budget = 1000;
+	const cost = fillOrders({strategy, assignments, producers, consumers})
+		.reduce((total, order) => {
+			const producer = producers.find(({id}) => id === order.producerId);
+			return total + producer.price * order.quantity;
+		}, 0);
+
+	const barColor = cost / budget <= 1 ? '#32a852' : '#a00';
 
 	return (
 		<Box style={{flexDirection: 'column', ...containerStyle}}>
@@ -234,7 +308,8 @@ export default function Chooser({producers, consumers, dates}) {
 						date={date}
 						producers={producers}
 						consumers={consumers}
-						producerStat={producerStat} />
+						producerStat={producerStat}
+						onAssign={assign} />
 				))}
 			</Box>
 
@@ -251,9 +326,15 @@ export default function Chooser({producers, consumers, dates}) {
 					</FormField>
 				</Box>
 
+				<Box paddingRight={3}>
+					<FormField label="Purchase strategy">
+						<Select options={purchaseStrategies} value={strategy} onChange={setStrategy} />
+					</FormField>
+				</Box>
+
 				<Box flexGrow={1} paddingRight={3}>
-					<ProgressBar progress={0.4} barColor='#32a852' />
-					Budget: $400 of $1000
+					<ProgressBar progress={cost/1000} barColor={barColor} style={{height: '1em'}} />
+					Budget: ${cost} of $1000
 				</Box>
 
 				<Button icon="thumbsUp" variant="primary">Apply Schedule</Button>
