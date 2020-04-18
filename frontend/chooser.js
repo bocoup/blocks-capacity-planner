@@ -254,7 +254,7 @@ export default function Chooser({producers, consumers, dates}) {
 	const [strategy, setStrategy] = useState('cheap');
 	const [assignments, assign] = useAssignments([]);
 
-	const budget = 1000;
+	const budget = 10 * 1000;
 	const cost = fillOrders({strategy, assignments, producers, consumers})
 		.reduce((total, order) => {
 			const producer = producers.find(({id}) => id === order.producerId);
@@ -298,8 +298,8 @@ export default function Chooser({producers, consumers, dates}) {
 				</Box>
 
 				<Box flexGrow={1} paddingRight={3}>
-					<ProgressBar progress={cost/1000} barColor={barColor} style={{height: '1em'}} />
-					Budget: ${cost} of $1000
+					<ProgressBar progress={cost/budget} barColor={barColor} style={{height: '1em'}} />
+					Budget: ${cost} of ${budget}
 				</Box>
 
 				<Button icon="thumbsUp" variant="primary" disabled={true}>
