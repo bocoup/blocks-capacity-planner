@@ -337,7 +337,9 @@ export default function Chooser({producers, consumers, dates}) {
 					Budget: ${cost} of $1000
 				</Box>
 
-				<Button icon="thumbsUp" variant="primary">Apply Schedule</Button>
+				<Button icon="thumbsUp" variant="primary" disabled={true}>
+					Apply Schedule
+				</Button>
 			</Box>
 		</Box>
 	);
