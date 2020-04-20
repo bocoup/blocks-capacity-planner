@@ -10,6 +10,7 @@ import React, {useCallback, useState} from 'react';
 
 import buildShifts from './build-shifts';
 import fillOrders from './fill-orders';
+import Constraints from './constraints';
 import Shift from './shift';
 
 const containerStyle = {
@@ -93,8 +94,9 @@ export default function Chooser({producers, consumers, dates}) {
 	const [producerStat, setProducerStat] = useState(null);
 	const [strategy, setStrategy] = useState('cheap');
 	const [assignments, assign] = useAssignments([]);
+	const [budget, setBudget] = useState(10 * 1000);
+	const [isShowingConstraints, setShowingConstraints] = useState(false);
 
-	const budget = 10 * 1000;
 	const cost = fillOrders({strategy, assignments, producers, consumers})
 		.reduce((total, order) => {
 			const producer = producers.find(({id}) => id === order.producerId);
@@ -105,8 +107,17 @@ export default function Chooser({producers, consumers, dates}) {
 
 	const shifts = buildShifts(windows, producers, consumers);
 
+	const constraints = isShowingConstraints ?
+		<Constraints
+			onClose={() => setShowingConstraints(false)}
+			budget={budget}
+			onBudgetChange={setBudget}
+		/> : '';
+
 	return (
 		<Box style={{flexDirection: 'column', ...containerStyle}}>
+			{constraints}
+
 			<Box padding={2} style={{overflowY: 'scroll'}}>
 				{shifts.map(({window, producers, consumers}) => (
 					<Shift key={window.date + window.timeOfDay}
@@ -137,9 +148,16 @@ export default function Chooser({producers, consumers, dates}) {
 					</FormField>
 				</Box>
 
+				<Button
+					marginRight={3}
+					onClick={() => setShowingConstraints(true)}
+					>
+					Schedule constraints
+				</Button>
+
 				<Box flexGrow={1} paddingRight={3}>
 					<ProgressBar progress={cost/budget} barColor={barColor} style={{height: '1em'}} />
-					Budget: ${cost} of ${budget}
+					${cost} of ${budget}
 				</Box>
 
 				<Button icon="thumbsUp" variant="primary" disabled={true}>
