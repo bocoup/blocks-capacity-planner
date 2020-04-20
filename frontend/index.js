@@ -28,17 +28,17 @@ loadCSSFromString(`
 function CapacityPlanner() {
 	const [isShowingSettings, setIsShowingSettings] = useState(false);
 	const globalConfig = useGlobalConfig();
-	const recipientsTableId = globalConfig.get('recipientsTableId');
-	const recipientsTable = base.getTableByIdIfExists(recipientsTableId);
+	const consumersTableId = globalConfig.get('consumersTableId');
+	const consumersTable = base.getTableByIdIfExists(consumersTableId);
 	const deliveriesTableId = globalConfig.get('deliveriesTableId');
 	const deliveriesTable = base.getTableByIdIfExists(deliveriesTableId);
-	const recipientsViewId = globalConfig.get('recipientsViewId');
-	const recipientsView = recipientsTable &&
-		recipientsTable.getViewByIdIfExists(recipientsViewId);
+	const consumersViewId = globalConfig.get('consumersViewId');
+	const consumersView = consumersTable &&
+		consumersTable.getViewByIdIfExists(consumersViewId);
 
 	useSettingsButton(() => setIsShowingSettings(!isShowingSettings));
 
-	const records = useRecords(recipientsView || recipientsTable, {
+	const records = useRecords(consumersView || consumersTable, {
 		fields: ['Name', 'Delivery Times', 'Number of Meals']
 	});
 
@@ -46,7 +46,7 @@ function CapacityPlanner() {
 		return <Settings />;
 	}
 
-	if (!recipientsTable) {
+	if (!consumersTable) {
 		return (
 			<Box padding={2}>
 				<p>This block must be configured before it may be used.</p>

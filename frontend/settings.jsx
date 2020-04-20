@@ -11,15 +11,15 @@ import {
 
 export default function Settings() {
 	const globalConfig = useGlobalConfig();
-	const recipientsTableId = globalConfig.get('recipientsTableId');
-	const recipientsTable = base.getTableByIdIfExists(recipientsTableId);
+	const consumersTableId = globalConfig.get('consumersTableId');
+	const consumersTable = base.getTableByIdIfExists(consumersTableId);
 	const deliveriesTableId = globalConfig.get('deliveriesTableId');
 	const deliveriesTable = base.getTableByIdIfExists(deliveriesTableId);
-	const recipientsViewId = globalConfig.get('recipientsViewId');
-	const recipientsView = recipientsTable &&
-		recipientsTable.getViewByIdIfExists(recipientsViewId);
+	const consumersViewId = globalConfig.get('consumersViewId');
+	const consumersView = consumersTable &&
+		consumersTable.getViewByIdIfExists(consumersViewId);
 
-	const records = useRecordIds(recipientsView || recipientsTable);
+	const records = useRecordIds(consumersView || consumersTable);
 
 	return (
 		<Box padding={2}>
@@ -29,21 +29,21 @@ export default function Settings() {
 
 			<div className="clearfix">
 				<FormField
-					label="Recipients table"
+					label="Consumers table"
 					style={{width: '50%', float: 'left'}}>
-					<TablePickerSynced globalConfigKey="recipientsTableId" />
+					<TablePickerSynced globalConfigKey="consumersTableId" />
 				</FormField>
 				<FormField
-					label="Recipients view"
+					label="Consumers view"
 					style={{width: '50%', float: 'left'}}>
 					<ViewPickerSynced
 						shouldAllowPickingNone={true}
-						globalConfigKey="recipientsViewId"
-						table={recipientsTable} />
+						globalConfigKey="consumersViewId"
+						table={consumersTable} />
 				</FormField>
 			</div>
 
-			<h3>{records ? records.length : 0} recipients selected</h3>
+			<h3>{records ? records.length : 0} consumers selected</h3>
 		</Box>
 	);
 };
