@@ -6,7 +6,8 @@ import {
 	Select,
 } from '@airtable/blocks/ui';
 import {base} from '@airtable/blocks';
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
+import moment from 'moment';
 
 import buildShifts from './build-shifts';
 import fillOrders from './fill-orders';
@@ -22,16 +23,6 @@ const containerStyle = {
 
 	display: 'flex',
 };
-
-const sampleDates = [
-	'2020-04-19',
-	'2020-04-20',
-	'2020-04-21',
-	'2020-04-22',
-	'2020-04-23',
-	'2020-04-24',
-	'2020-04-25',
-];
 
 function annotateExtremes(collection, propertyName) {
 	const all = collection.map((item) => item[propertyName]);
@@ -80,23 +71,48 @@ function useAssignments(initial) {
 	return [assignments, assign];
 }
 
-export default function Chooser({producers, consumers, dates}) {
-	dates = sampleDates;
+const makeWindows = (startDate, endDate) => {
+	const current = moment(startDate);
+	const end = moment(endDate);
+	const elements = [];
 
+	if (!current.isValid() || !end.isValid() || current > end) {
+		return elements;
+	}
+
+	while (!current.isSame(end, 'day')) {
+		const date = current.format('YYYY-MM-DD');
+		elements.push(
+			{date, timeOfDay: 'afternoon'}, {date, timeOfDay: 'evening'}
+		);
+		current.add(1, 'day');
+	}
+
+	return elements;
+};
+
+export default function Chooser({producers, consumers}) {
 	consumers = annotateExtremes(consumers, 'need');
 	producers = annotateExtremes(producers, 'capacity');
 	producers = annotateExtremes(producers, 'price');
-	const windows = dates.map((date) => [
-		{date, timeOfDay: 'afternoon'}, {date, timeOfDay: 'evening'}
-	]).flat();
 
 	const [sort, setSort] = useState('name');
 	const [producerStat, setProducerStat] = useState(null);
 	const [strategy, setStrategy] = useState('cheap');
 	const [assignments, assign] = useAssignments([]);
 	const [budget, setBudget] = useState(10 * 1000);
+	const [startDate, setStartDate] = useState(
+		() => moment().set('day', 0).add(1, 'week').format('YYYY-MM-DD')
+	);
+	const [endDate, setEndDate] = useState(
+		() => moment().set('day', 0).add(2, 'week').format('YYYY-MM-DD')
+	);
 	const [isShowingConstraints, setShowingConstraints] = useState(false);
 
+	const windows = useMemo(
+		() => makeWindows(startDate, endDate),
+		[startDate, endDate]
+	);
 	const cost = fillOrders({strategy, assignments, producers, consumers})
 		.reduce((total, order) => {
 			const producer = producers.find(({id}) => id === order.producerId);
@@ -110,6 +126,10 @@ export default function Chooser({producers, consumers, dates}) {
 	const constraints = isShowingConstraints ?
 		<Constraints
 			onClose={() => setShowingConstraints(false)}
+			startDate={startDate}
+			onStartDateChange={setStartDate}
+			endDate={endDate}
+			onEndDateChange={setEndDate}
 			budget={budget}
 			onBudgetChange={setBudget}
 		/> : '';
