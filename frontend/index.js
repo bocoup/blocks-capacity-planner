@@ -38,6 +38,10 @@ function CapacityPlanner() {
 
 	useSettingsButton(() => setIsShowingSettings(!isShowingSettings));
 
+	const records = useRecords(recipientsView || recipientsTable, {
+		fields: ['Name', 'Delivery Times', 'Number of Meals']
+	});
+
 	if (isShowingSettings) {
 		return <Settings />;
 	}
@@ -53,10 +57,6 @@ function CapacityPlanner() {
 			</Box>
 		);
 	}
-
-	const records = useRecords(recipientsView || recipientsTable, {
-		fields: ['Name', 'Delivery Times', 'Number of Meals']
-	});
 
 	const consumers = records.map((record) => ({
 		id: record.id,
