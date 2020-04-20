@@ -4,7 +4,6 @@ import {
 	FormField,
 	ProgressBar,
 	Select,
-	loadCSSFromString,
 } from '@airtable/blocks/ui';
 import {base} from '@airtable/blocks';
 import React, {useCallback, useState} from 'react';
@@ -32,48 +31,6 @@ const sampleDates = [
 	'2020-04-24',
 	'2020-04-25',
 ];
-
-const hospitals = [
-	{
-		name: 'Mass General Hospital',
-		need: 50,
-		times: [
-			{day: 'Monday', time: '19:00'},
-			{day: 'Monday', time: '19:00'},
-			{day: 'Tuesday', time: '19:00'},
-			{day: 'Tuesday', time: '19:00'},
-			{day: 'Wednesday', time: '19:00'},
-			{day: 'Wednesday', time: '19:00'},
-			{day: 'Thursday', time: '19:00'},
-			{day: 'Thursday', time: '19:00'},
-			{day: 'Friday', time: '19:00'},
-			{day: 'Friday', time: '19:00'},
-		]
-	},
-	{
-		name: 'South Shore Hospital',
-		need: 30,
-		times: [
-			{day: 'Sunday', time: '13:00'},
-			{day: 'Monday', time: '13:00'},
-			{day: 'Tuesday', time: '13:00'},
-			{day: 'Wednesday', time: '13:00'},
-			{day: 'Thursday', time: '13:00'},
-			{day: 'Friday', time: '13:00'},
-			{day: 'Saturday', time: '13:00'},
-		]
-	},
-	{
-		name: 'Brigham and Women\'s',
-		need: 40,
-		times: [
-			{day: 'Sunday', time: '13:00'},
-			{day: 'Sunday', time: '20:00'},
-			{day: 'Saturday', time: '13:00'},
-			{day: 'Saturday', time: '20:00'},
-		]
-	},
-].map((hospital, id) => Object.assign(hospital, {id}));
 
 const restaurants = [
 	{
@@ -178,18 +135,6 @@ const restaurants = [
 	},
 ].map((restaurant, id) => Object.assign(restaurant, {id}));
 
-loadCSSFromString(`
-	.clearfix:after {
-		content: "\\00A0";
-		display: block;
-		clear: both;
-		visibility: hidden;
-		line-height: 0;
-		height: 0;
-	}
-	.clearfix {display: block}
-`);
-
 function annotateExtremes(collection, propertyName) {
 	const all = collection.map((item) => item[propertyName]);
 	const extremes = {
@@ -239,7 +184,6 @@ function useAssignments(initial) {
 
 export default function Chooser({producers, consumers, dates}) {
 	producers = restaurants;
-	consumers = hospitals;
 	dates = sampleDates;
 
 	consumers = annotateExtremes(consumers, 'need');

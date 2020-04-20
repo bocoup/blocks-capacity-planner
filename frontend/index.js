@@ -2,7 +2,9 @@ import {
 	Box,
 	Button,
 	initializeBlock,
+	loadCSSFromString,
 	useGlobalConfig,
+	useRecords,
 	useSettingsButton,
 } from '@airtable/blocks/ui';
 import {base} from '@airtable/blocks';
@@ -10,6 +12,18 @@ import React, {useState} from 'react';
 
 import Chooser from './chooser';
 import Settings from './settings';
+
+loadCSSFromString(`
+	.clearfix:after {
+		content: "\\00A0";
+		display: block;
+		clear: both;
+		visibility: hidden;
+		line-height: 0;
+		height: 0;
+	}
+	.clearfix {display: block}
+`);
 
 function CapacityPlanner() {
 	const [isShowingSettings, setIsShowingSettings] = useState(false);
@@ -28,7 +42,7 @@ function CapacityPlanner() {
 		return <Settings />;
 	}
 
-	if (!recipientsView) {
+	if (!recipientsTable) {
 		return (
 			<Box padding={2}>
 				<p>This block must be configured before it may be used.</p>
@@ -40,7 +54,25 @@ function CapacityPlanner() {
 		);
 	}
 
-	return <Chooser />;
+	const records = useRecords(recipientsView || recipientsTable, {
+		fields: ['Name', 'Delivery Times', 'Number of Meals']
+	});
+
+	const consumers = records.map((record) => ({
+		id: record.id,
+		name: record.name,
+		need: record.getCellValue('Number of Meals'),
+		// This is a linked record. Although `selectLinkedRecordsFromCell` is
+		// technically more appropriate, it can't be used in a synchronous
+		// context. Instead, operate on each record's name (which is available
+		// immediately) to infer the relevant values.
+		times: (record.getCellValue('Delivery Times') || []).map((record) => {
+			const [day, time] = record.name.split(/\s*@\s*/);
+			return {day, time};
+		}),
+	}));
+
+	return <Chooser consumers={consumers} />;
 }
 
 initializeBlock(() => <CapacityPlanner />);

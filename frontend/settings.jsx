@@ -6,6 +6,7 @@ import {
 	TablePickerSynced,
 	ViewPickerSynced,
 	useGlobalConfig,
+	useRecordIds,
 } from '@airtable/blocks/ui';
 
 export default function Settings() {
@@ -18,23 +19,31 @@ export default function Settings() {
 	const recipientsView = recipientsTable &&
 		recipientsTable.getViewByIdIfExists(recipientsViewId);
 
+	const records = useRecordIds(recipientsView || recipientsTable);
+
 	return (
 		<Box padding={2}>
 			<FormField label="Deliveries table">
 				<TablePickerSynced globalConfigKey="deliveriesTableId" />
 			</FormField>
-			<FormField
-				label="Recipients table"
-				style={{width: '50%', float: 'left'}}>
-				<TablePickerSynced globalConfigKey="recipientsTableId" />
-			</FormField>
-			<FormField
-				label="Recipients view"
-				style={{width: '50%', float: 'left'}}>
-				<ViewPickerSynced
-					globalConfigKey="recipientsViewId"
-					table={recipientsTable} />
-			</FormField>
+
+			<div className="clearfix">
+				<FormField
+					label="Recipients table"
+					style={{width: '50%', float: 'left'}}>
+					<TablePickerSynced globalConfigKey="recipientsTableId" />
+				</FormField>
+				<FormField
+					label="Recipients view"
+					style={{width: '50%', float: 'left'}}>
+					<ViewPickerSynced
+						shouldAllowPickingNone={true}
+						globalConfigKey="recipientsViewId"
+						table={recipientsTable} />
+				</FormField>
+			</div>
+
+			<h3>{records ? records.length : 0} recipients selected</h3>
 		</Box>
 	);
 };
