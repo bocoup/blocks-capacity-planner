@@ -32,109 +32,6 @@ const sampleDates = [
 	'2020-04-25',
 ];
 
-const restaurants = [
-	{
-		name: 'Gio\'s',
-		capacity: 20,
-		price: 10,
-		times: [
-			{day: 'Sunday', timeOfDay: 'afternoon'},
-			{day: 'Sunday', timeOfDay: 'evening'},
-			{day: 'Monday', timeOfDay: 'afternoon'},
-			{day: 'Monday', timeOfDay: 'evening'},
-			{day: 'Tuesday', timeOfDay: 'afternoon'},
-			{day: 'Tuesday', timeOfDay: 'evening'},
-			{day: 'Wednesday', timeOfDay: 'afternoon'},
-			{day: 'Wednesday', timeOfDay: 'evening'},
-			{day: 'Thursday', timeOfDay: 'afternoon'},
-			{day: 'Thursday', timeOfDay: 'evening'},
-			{day: 'Friday', timeOfDay: 'afternoon'},
-			{day: 'Friday', timeOfDay: 'evening'},
-			{day: 'Saturday', timeOfDay: 'afternoon'},
-			{day: 'Saturday', timeOfDay: 'evening'},
-		],
-	},
-	{
-		name: 'The Lobster Stop',
-		capacity: 20,
-		price: 35,
-		times: [
-			{day: 'Monday', timeOfDay: 'afternoon'},
-			{day: 'Monday', timeOfDay: 'evening'},
-			{day: 'Tuesday', timeOfDay: 'afternoon'},
-			{day: 'Tuesday', timeOfDay: 'evening'},
-			{day: 'Wednesday', timeOfDay: 'afternoon'},
-			{day: 'Wednesday', timeOfDay: 'evening'},
-			{day: 'Thursday', timeOfDay: 'afternoon'},
-			{day: 'Thursday', timeOfDay: 'evening'},
-			{day: 'Friday', timeOfDay: 'afternoon'},
-			{day: 'Friday', timeOfDay: 'evening'},
-			{day: 'Saturday', timeOfDay: 'afternoon'},
-			{day: 'Saturday', timeOfDay: 'evening'},
-		],
-	},
-	{
-		name: 'Denley\'s',
-		capacity: 50,
-		price: 10,
-		times: [
-			{day: 'Monday', timeOfDay: 'afternoon'},
-			{day: 'Monday', timeOfDay: 'evening'},
-			{day: 'Tuesday', timeOfDay: 'afternoon'},
-			{day: 'Tuesday', timeOfDay: 'evening'},
-			{day: 'Wednesday', timeOfDay: 'afternoon'},
-			{day: 'Wednesday', timeOfDay: 'evening'},
-			{day: 'Thursday', timeOfDay: 'afternoon'},
-			{day: 'Thursday', timeOfDay: 'evening'},
-			{day: 'Friday', timeOfDay: 'afternoon'},
-			{day: 'Friday', timeOfDay: 'evening'},
-			{day: 'Saturday', timeOfDay: 'afternoon'},
-			{day: 'Saturday', timeOfDay: 'evening'},
-		],
-	},
-	{
-		name: 'Little Duck',
-		capacity: 20,
-		price: 15,
-		times: [
-			{day: 'Sunday', timeOfDay: 'evening'},
-			{day: 'Monday', timeOfDay: 'evening'},
-			{day: 'Tuesday', timeOfDay: 'evening'},
-			{day: 'Wednesday', timeOfDay: 'evening'},
-			{day: 'Thursday', timeOfDay: 'evening'},
-			{day: 'Friday', timeOfDay: 'evening'},
-			{day: 'Saturday', timeOfDay: 'evening'},
-		],
-	},
-	{
-		name: 'The Fat Cat',
-		capacity: 30,
-		price: 25,
-		times: [
-			{day: 'Monday', timeOfDay: 'evening'},
-			{day: 'Tuesday', timeOfDay: 'evening'},
-			{day: 'Wednesday', timeOfDay: 'evening'},
-			{day: 'Thursday', timeOfDay: 'evening'},
-			{day: 'Friday', timeOfDay: 'evening'},
-			{day: 'Saturday', timeOfDay: 'evening'},
-		],
-	},
-	{
-		name: 'The Four\'s',
-		capacity: 70,
-		price: 20,
-		times: [
-			{day: 'Sunday', timeOfDay: 'evening'},
-			{day: 'Monday', timeOfDay: 'evening'},
-			{day: 'Tuesday', timeOfDay: 'evening'},
-			{day: 'Wednesday', timeOfDay: 'evening'},
-			{day: 'Thursday', timeOfDay: 'evening'},
-			{day: 'Friday', timeOfDay: 'evening'},
-			{day: 'Saturday', timeOfDay: 'evening'},
-		],
-	},
-].map((restaurant, id) => Object.assign(restaurant, {id}));
-
 function annotateExtremes(collection, propertyName) {
 	const all = collection.map((item) => item[propertyName]);
 	const extremes = {
@@ -183,7 +80,6 @@ function useAssignments(initial) {
 }
 
 export default function Chooser({producers, consumers, dates}) {
-	producers = restaurants;
 	dates = sampleDates;
 
 	consumers = annotateExtremes(consumers, 'need');

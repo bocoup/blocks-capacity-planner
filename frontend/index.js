@@ -35,18 +35,26 @@ function CapacityPlanner() {
 	const consumersViewId = globalConfig.get('consumersViewId');
 	const consumersView = consumersTable &&
 		consumersTable.getViewByIdIfExists(consumersViewId);
+	const producersTableId = globalConfig.get('producersTableId');
+	const producersTable = base.getTableByIdIfExists(producersTableId);
+	const producersViewId = globalConfig.get('producersViewId');
+	const producersView = producersTable &&
+		producersTable.getViewByIdIfExists(producersViewId);
 
 	useSettingsButton(() => setIsShowingSettings(!isShowingSettings));
 
-	const records = useRecords(consumersView || consumersTable, {
+	const consumerRecords = useRecords(consumersView || consumersTable, {
 		fields: ['Name', 'Delivery Times', 'Number of Meals']
+	});
+	const producerRecords = useRecords(producersView || producersTable, {
+		fields: ['Name', 'Shifts', 'Projected Price/Meal', 'Max Meals']
 	});
 
 	if (isShowingSettings) {
 		return <Settings />;
 	}
 
-	if (!consumersTable) {
+	if (!consumersTable || !producersTable) {
 		return (
 			<Box padding={2}>
 				<p>This block must be configured before it may be used.</p>
@@ -58,7 +66,7 @@ function CapacityPlanner() {
 		);
 	}
 
-	const consumers = records.map((record) => ({
+	const consumers = consumerRecords.map((record) => ({
 		id: record.id,
 		name: record.name,
 		need: record.getCellValue('Number of Meals'),
@@ -72,7 +80,18 @@ function CapacityPlanner() {
 		}),
 	}));
 
-	return <Chooser consumers={consumers} />;
+	const producers = producerRecords.map((record) => ({
+		id: record.id,
+		name: record.name,
+		capacity: record.getCellValue('Max Meals'),
+		price: record.getCellValue('Projected Price/Meal'),
+		times: (record.getCellValue('Shifts') || []).map((record) => {
+			const [day, timeOfDay] = record.name.split(/\s+/);
+			return {day, timeOfDay};
+		}),
+	}));
+
+	return <Chooser consumers={consumers} producers={producers} />;
 }
 
 initializeBlock(() => <CapacityPlanner />);
