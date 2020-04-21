@@ -1,14 +1,26 @@
 # capacity planner block
 
-This block pulls data from the 'Orders' table, and adds data to the 'Deliveries' tabke.
-You can find matching tables in the "Front Line Foods Backline Copy" base on airtable.com.
+An application for Airtable.com which helps users connect consumers and
+producers, creating a schedule of discrete deliveries.
 
-## How to run this block
-0. clone this repo, install the airtable block cli and run `block run` from the root of this project.
+## Terminology
 
-1. Open the
-   [Front Line Foods Backline Copy](https://airtable.com/tblqHoiuESxo1aS05/viwPqEZcqMsUWkZtp) base
+- **consumer** - an entity described by: "name" (a string value), "need" (an
+  integer value), and "times" (one or more day-of-week/time-of-day pairs)
+- **producer** - an entity described by: "name" (a string value), "capacity"
+  (an integer value), "price" (a floating point number), and "times" (one or
+  more day-of-week/time-of-day pairs)
+- **shift** - a day of the week and a time of day, e.g. "Tuesday afternoon"
 
-2. open the block pain in the base and click 'edit' on the 'schedule view' custom block.
+This block was initially developed for use in disaster relief planning. In this
+context, "consumers" were hospitals whose "need" was measured in number of
+workers looking for a meal at the end of their work day. "Producers" were
+locally-owned restaurants whose "capacity" was measured in the number of meals
+they were capable of delivering. Volunteers used this tool to create weekly
+schedules, facilitating weekly deliveries to help independent businesses feed
+hospital workers in their communities.
 
-3. Paste in the local host url that `block run` gave you. You may have to enable unsafe local ssl in your browser.
+## License
+
+Copyright 2020 Bocoup under [the MIT Expat
+license](https://directory.fsf.org/wiki/License:Expat).

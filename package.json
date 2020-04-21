@@ -1,4 +1,5 @@
 {
+    "private": true,
     "dependencies": {
         "@airtable/blocks": "0.0.45",
         "mocha": "^7.1.1",

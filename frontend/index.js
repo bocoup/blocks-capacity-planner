@@ -70,10 +70,11 @@ function CapacityPlanner() {
 		id: record.id,
 		name: record.name,
 		need: record.getCellValue('Number of Meals'),
-		// This is a linked record. Although `selectLinkedRecordsFromCell` is
-		// technically more appropriate, it can't be used in a synchronous
-		// context. Instead, operate on each record's name (which is available
-		// immediately) to infer the relevant values.
+		// "Delivery Times" is a linked record. Although
+		// `selectLinkedRecordsFromCell` is technically more appropriate, it
+		// can't be used in a synchronous context. Instead, operate on each
+		// record's name (which is available immediately) to infer the relevant
+		// values.
 		times: (record.getCellValue('Delivery Times') || []).map((record) => {
 			const [day, time] = record.name.split(/\s*@\s*/);
 			return {day, time};
@@ -85,6 +86,10 @@ function CapacityPlanner() {
 		name: record.name,
 		capacity: record.getCellValue('Max Meals'),
 		price: record.getCellValue('Projected Price/Meal'),
+		// "Shifts" is a linked record. Although `selectLinkedRecordsFromCell`
+		// is technically more appropriate, it can't be used in a synchronous
+		// context. Instead, operate on each record's name (which is available
+		// immediately) to infer the relevant values.
 		times: (record.getCellValue('Shifts') || []).map((record) => {
 			const [day, timeOfDay] = record.name.split(/\s+/);
 			return {day, timeOfDay};
