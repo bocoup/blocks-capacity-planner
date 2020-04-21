@@ -5,8 +5,7 @@ import {
 	ProgressBar,
 	Select,
 } from '@airtable/blocks/ui';
-import {base} from '@airtable/blocks';
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useMemo, useState} from 'react';
 import moment from 'moment';
 
 import buildShifts from './build-shifts';
@@ -186,4 +185,4 @@ export default function Chooser({producers, consumers}) {
 			</Box>
 		</Box>
 	);
-};
+}

@@ -2,7 +2,6 @@ import {
     Button,
     FormField,
     Input,
-    Text,
     useRecordIds,
 } from '@airtable/blocks/ui';
 import React, {useState} from 'react';
@@ -31,7 +30,7 @@ async function * build({startDate, endDate, recipients, deliveriesTable}) {
       const deliveryTimes = await recipient.selectLinkedRecordsFromCellAsync(
           'Delivery Times'
       );
-      const deliveries = expandDates(
+      let deliveries = expandDates(
           startDate,
           endDate,
           deliveryTimes.records.map((record) => ({
@@ -55,7 +54,7 @@ async function * build({startDate, endDate, recipients, deliveriesTable}) {
   }
 }
 
-export default function DeliveryBuilder({recipientsView, deliveriesTable, children}) {
+export default function DeliveryBuilder({recipientsView, deliveriesTable}) {
   const [messages, {push: pushMessage, clear: clearMessages}] = useList();
   const recipients = recipientsView && recipientsView.selectRecords();
   const [startDate, setStartDate] = useState('');
@@ -114,4 +113,4 @@ export default function DeliveryBuilder({recipientsView, deliveriesTable, childr
             </tbody>
         </table>
     </div>;
-};
+}

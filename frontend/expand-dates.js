@@ -26,4 +26,4 @@ export default function expandDates(startDate, endDate, times) {
   }
 
   return all;
-};
+}

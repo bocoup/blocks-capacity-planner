@@ -30,8 +30,6 @@ function CapacityPlanner() {
 	const globalConfig = useGlobalConfig();
 	const consumersTableId = globalConfig.get('consumersTableId');
 	const consumersTable = base.getTableByIdIfExists(consumersTableId);
-	const deliveriesTableId = globalConfig.get('deliveriesTableId');
-	const deliveriesTable = base.getTableByIdIfExists(deliveriesTableId);
 	const consumersViewId = globalConfig.get('consumersViewId');
 	const consumersView = consumersTable &&
 		consumersTable.getViewByIdIfExists(consumersViewId);
