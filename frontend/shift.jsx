@@ -147,7 +147,8 @@ export default function Shift({date, producers, consumers, producerStat, onAssig
 				{date}
 			</Heading>
 
-			<Box display="flex" marginBottom={4}>
+			<Box marginBottom={4} style={{position: 'relative'}}>
+				<Box style={{position: 'absolute', top: 0, bottom: 0, left: 0, width: '20%', overflowY: 'scroll'}}>
 				<ProducerDropZone
 					producers={unassigned}
 					onAssign={unassign}
@@ -156,8 +157,9 @@ export default function Shift({date, producers, consumers, producerStat, onAssig
 				>
 					<Heading as="h3" style={{fontSize: '1em'}}>unassigned</Heading>
 				</ProducerDropZone>
+				</Box>
 
-				<table style={{width: '100%', marginLeft: '1em'}}>
+				<table style={{marginLeft: '20%', width: '80%', paddingLeft: '1em'}}>
 					<tbody>
 						{consumers.map((consumer) => (
 							<Consumer
