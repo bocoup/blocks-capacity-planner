@@ -10,6 +10,34 @@ import {
 
 import Rating from './rating';
 
+import {assign as _assign} from './assign';
+
+const useAssignments = (consumers, producers) => {
+	const [assignments, setAssignments] = useState(() => {
+		return Object.freeze(producers.map((producer) => {
+			return {
+				consumerId: null,
+				producerId: producer.id,
+				amount: producer.capacity,
+		}));
+	});
+	const assign = useCallback(
+		(fromConsumerId, toConsumerId, producerId) => {
+			setAssignments(_assign(
+				consumers,
+				producers,
+				assignments,
+				fromConsumerId,
+				toConsumerId,
+				producerId
+			));
+		},
+		[consumers, producers]
+	);
+
+	return [assignments, assign];
+};
+
 const useProducers = (_producers) => {
 	const [producers, setProducers] = useState(
 		() => Object.freeze(_producers.map((producer) => Object.freeze(Object.assign({}, producer, {assignment: null}))))
@@ -122,15 +150,7 @@ function Consumer({consumer, producers, onAssign, accept, producerStat}) {
 
 
 export default function Shift({date, producers, consumers, producerStat, onAssign}) {
-	let internalAssign;
-	[producers, internalAssign] = useProducers(producers);
-	const assign = useCallback(
-		(consumerId, producerId) => {
-			internalAssign(consumerId, producerId);
-			onAssign(date, consumerId, producerId);
-		},
-		[date, onAssign, internalAssign]
-	);
+	const [assignments, internalAssign] = useAssignments(consumers, producers);
 	const unassign = useCallback(
 		(producerId) => {
 			internalAssign(null, producerId);
