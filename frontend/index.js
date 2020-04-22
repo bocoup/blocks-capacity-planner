@@ -28,6 +28,8 @@ loadCSSFromString(`
 function CapacityPlanner() {
 	const [isShowingSettings, setIsShowingSettings] = useState(false);
 	const globalConfig = useGlobalConfig();
+	const deliveriesTableId = globalConfig.get('deliveriesTableId');
+	const deliveriesTable = base.getTableByIdIfExists(deliveriesTableId);
 	const consumersTableId = globalConfig.get('consumersTableId');
 	const consumersTable = base.getTableByIdIfExists(consumersTableId);
 	const consumersViewId = globalConfig.get('consumersViewId');
@@ -41,6 +43,9 @@ function CapacityPlanner() {
 
 	useSettingsButton(() => setIsShowingSettings(!isShowingSettings));
 
+	const assignmentRecords = useRecords(deliveriesTable, {
+		fields: ['Delivery Scheduled', 'Hospital', 'Restaurant', 'Number of Meals']
+	});
 	const consumerRecords = useRecords(consumersView || consumersTable, {
 		fields: ['Name', 'Delivery Times', 'Number of Meals']
 	});
@@ -52,7 +57,7 @@ function CapacityPlanner() {
 		return <Settings />;
 	}
 
-	if (!consumersTable || !producersTable) {
+	if (!deliveriesTable || !consumersTable || !producersTable) {
 		return (
 			<Box padding={2}>
 				<p>This block must be configured before it may be used.</p>
@@ -78,6 +83,7 @@ function CapacityPlanner() {
 			return {day, time};
 		}),
 	}));
+	const consumerIds = new Set(consumers.map(({id}) => id));
 
 	const producers = producerRecords.map((record) => ({
 		id: record.id,
@@ -93,8 +99,33 @@ function CapacityPlanner() {
 			return {day, timeOfDay};
 		}),
 	}));
+	const producerIds = new Set(producers.map(({id}) => id));
 
-	return <Chooser consumers={consumers} producers={producers} />;
+	const getLinkedId = (record, name) => {
+		const value = record.getCellValue(name);
+		return Array.isArray(value) ? value[0] && value[0].id : value && value.id;
+	};
+	const assignments = assignmentRecords
+		.map((record) => ({
+			id: record.id,
+			consumerId: getLinkedId(record, 'Hospital'),
+			producerId: getLinkedId(record, 'Restaurant'),
+			amount: record.getCellValue('Number of Meals'),
+			time: record.getCellValue('Delivery Scheduled'),
+		}))
+		.filter(({consumerId, producerId}) => {
+			return consumerIds.has(consumerId) && producerIds.has(producerId);
+		});
+
+	// TODO(jugglinmike): Implement
+	const assign = () => {};
+
+	return <Chooser
+		consumers={consumers}
+		producers={producers}
+		assignments={assignments}
+		onAssign={assign}
+		/>;
 }
 
 initializeBlock(() => <CapacityPlanner />);

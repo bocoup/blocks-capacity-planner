@@ -9,9 +9,9 @@ import React, {useMemo, useState} from 'react';
 import moment from 'moment';
 
 import buildShifts from './build-shifts';
-import fillOrders from './fill-orders';
+import priceAssignments from './price-assignments';
 import Constraints from './constraints';
-import Shift from './shift';
+import ShiftView from './shift-view';
 
 const containerStyle = {
 	position: 'absolute',
@@ -49,48 +49,7 @@ const purchaseStrategies = [
 	{value: 'fair', label: 'Fair'}
 ];
 
-function useAssignments(initial) {
-	const [assignments, setAssignments] = useState(Object.freeze(initial));
-	const assign = (date, consumerId, producerId) => {
-		const newAssignments = assignments
-			.filter((assignment) => {
-				return !(
-					assignment.date === date &&
-					assignment.producerId === producerId
-				);
-			});
-
-		if (consumerId !== null) {
-			newAssignments.push({date, consumerId, producerId});
-		}
-
-		setAssignments(Object.freeze(newAssignments));
-	};
-
-	return [assignments, assign];
-}
-
-const makeWindows = (startDate, endDate) => {
-	const current = moment(startDate);
-	const end = moment(endDate);
-	const elements = [];
-
-	if (!current.isValid() || !end.isValid() || current > end) {
-		return elements;
-	}
-
-	while (!current.isSame(end, 'day')) {
-		const date = current.format('YYYY-MM-DD');
-		elements.push(
-			{date, timeOfDay: 'afternoon'}, {date, timeOfDay: 'evening'}
-		);
-		current.add(1, 'day');
-	}
-
-	return elements;
-};
-
-export default function Chooser({producers, consumers}) {
+export default function Chooser({producers, consumers, assignments, onAssign}) {
 	consumers = annotateExtremes(consumers, 'need');
 	producers = annotateExtremes(producers, 'capacity');
 	producers = annotateExtremes(producers, 'price');
@@ -98,7 +57,6 @@ export default function Chooser({producers, consumers}) {
 	const [sort, setSort] = useState('name');
 	const [producerStat, setProducerStat] = useState(null);
 	const [strategy, setStrategy] = useState('cheap');
-	const [assignments, assign] = useAssignments([]);
 	const [budget, setBudget] = useState(10 * 1000);
 	const [startDate, setStartDate] = useState(
 		() => moment().set('day', 0).add(1, 'week').format('YYYY-MM-DD')
@@ -108,19 +66,17 @@ export default function Chooser({producers, consumers}) {
 	);
 	const [isShowingConstraints, setShowingConstraints] = useState(false);
 
-	const windows = useMemo(
-		() => makeWindows(startDate, endDate),
-		[startDate, endDate]
+	const cost = useMemo(
+		() => priceAssignments({producers, assignments}),
+		[producers, assignments]
 	);
-	const cost = fillOrders({strategy, assignments, producers, consumers})
-		.reduce((total, order) => {
-			const producer = producers.find(({id}) => id === order.producerId);
-			return total + producer.price * order.quantity;
-		}, 0);
 
 	const barColor = cost / budget <= 1 ? '#32a852' : '#a00';
 
-	const shifts = buildShifts(windows, producers, consumers);
+	const shifts = useMemo(
+		() => buildShifts({startDate, endDate, assignments}),
+		[startDate, endDate, assignments]
+	);
 
 	const constraints = isShowingConstraints ?
 		<Constraints
@@ -138,13 +94,13 @@ export default function Chooser({producers, consumers}) {
 			{constraints}
 
 			<Box padding={2} style={{overflowY: 'scroll'}}>
-				{shifts.map(({window, producers, consumers}) => (
-					<Shift key={window.date + window.timeOfDay}
-						date={`${window.date} ${window.timeOfDay}`}
-						producers={producers}
+				{shifts.map((shift) => (
+					<ShiftView key={shift.date + shift.timeOfDay}
+						shift={shift}
 						consumers={consumers}
+						producers={producers}
 						producerStat={producerStat}
-						onAssign={assign} />
+						onAssign={onAssign} />
 				))}
 			</Box>
 

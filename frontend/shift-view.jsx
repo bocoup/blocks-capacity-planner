@@ -10,7 +10,8 @@ import {
 
 import Rating from './rating';
 
-import {assign as _assign} from './assign';
+import _assign from './assign';
+import buildNullAssignments from './build-null-assignments';
 
 const useAssignments = (consumers, producers) => {
 	const [assignments, setAssignments] = useState(() => {
@@ -19,6 +20,7 @@ const useAssignments = (consumers, producers) => {
 				consumerId: null,
 				producerId: producer.id,
 				amount: producer.capacity,
+			};
 		}));
 	});
 	const assign = useCallback(
@@ -58,28 +60,37 @@ const useProducers = (_producers) => {
 	return [producers, assign];
 };
 
-function ProducerDropZone({children, producers, onAssign, accept, stat}) {
+function ProducerDropZone({children, consumerId, producers, assignments, onAssign, accept, stat}) {
 	const [, drop] = useDrop({
 		accept,
 		drop(item) {
-			onAssign(item.id);
+			onAssign(item.id, consumerId);
 		}
 	});
+	const items = assignments
+		.filter((assignment) => assignment.consumerId === consumerId)
+		.map((assignment) => (
+			<AssignmentItem
+				key={assignment.producerId}
+				assignment={assignment}
+				producer={producers.find(({id}) => id === assignment.producerId)}
+				type={accept}
+				stat={stat} />));
 
 	return (
 		<div ref={drop}>
 			{children}
 
 			<ul style={{listStyleType: 'none', margin: 0, padding: 0}}>
-				{producers.map((producer) => <Producer key={producer.id} producer={producer} type={accept} stat={stat} />)}
+				{items}
 			</ul>
 		</div>
 	);
 }
 
-function Producer({producer, type, stat}) {
+function AssignmentItem({producer, assignment, type, stat}) {
 	const [, drag] = useDrag({
-		item: { id: producer.id, type }
+		item: { id: assignment.id, type }
 	});
 
 	return (
@@ -88,7 +99,7 @@ function Producer({producer, type, stat}) {
 			className="clearfix"
 			style={{cursor: 'pointer', border: 'solid 1px #ddd', borderRadius: '0.4em', padding: '0.2em', margin: '0.2em'}}
 			>
-			<span style={{float: 'left'}}>{producer.name}</span>
+			<span style={{float: 'left'}}>{producer.name} ({assignment.amount}/{producer.capacity})</span>
 			{stat ?
 				<Rating
 					style={{float: 'right', marginLeft: '1em'}}
@@ -100,16 +111,12 @@ function Producer({producer, type, stat}) {
 	);
 }
 
-function Consumer({consumer, producers, onAssign, accept, producerStat}) {
-	const assign = useCallback(
-		(producerId) => {
-			onAssign(consumer.id, producerId);
-		},
-		[onAssign, consumer.id]
-	);
-
-	const assigned = producers.filter((producer) => producer.assignment === consumer.id);
-	const provided = assigned.reduce((total, producer) => total + producer.capacity, 0);
+function Consumer({
+	consumer, producers, assignments, onAssign, accept, producerStat
+}) {
+	const provided = assignments.reduce((total, assignment) => {
+		return total + assignment.amount;
+	}, 0);
 	const fulfillment = provided / consumer.need;
 	let icon;
 
@@ -125,9 +132,11 @@ function Consumer({consumer, producers, onAssign, accept, producerStat}) {
 		<tr>
 			<td width="50%">
 				<ProducerDropZone
-					producers={assigned}
-					onAssign={assign}
+					consumerId={consumer.id}
+					producers={producers}
+					assignments={assignments}
 					accept={accept}
+					onAssign={onAssign}
 					stat={producerStat}
 					>
 					<Heading as="h3" style={{fontSize: '1em'}}>{consumer.name}</Heading>
@@ -148,31 +157,35 @@ function Consumer({consumer, producers, onAssign, accept, producerStat}) {
 	);
 }
 
-
-export default function Shift({date, producers, consumers, producerStat, onAssign}) {
-	const [assignments, internalAssign] = useAssignments(consumers, producers);
-	const unassign = useCallback(
-		(producerId) => {
-			internalAssign(null, producerId);
-			onAssign(date, null, producerId);
-		},
-		[date, onAssign, internalAssign]
+export default function ShiftView({shift, producers, consumers, producerStat, onAssign}) {
+	const id = `${shift.date} ${shift.timeOfDay}`;
+	const nullAssignments = buildNullAssignments(
+		shift.date, shift.timeOfDay, producers, shift.assignments
 	);
+	const assign = (assignmentId, consumerId) => {
+		const source = /^NullAssignment:/.test(assignmentId) ?
+			nullAssignments : shift.assignments;
+		const assignment = source.find(({id}) => id === assignmentId);
 
-	const unassigned = producers.filter(({assignment}) => assignment === null);
+		// TODO(jugglinmike): Build a set of instructions describing table
+		// operations and pass those along to the parent component.
+		onAssign(assignment, consumerId);
+	};
 
 	return (
 		<DndProvider backend={Backend}>
 			<Heading as="h3" style={{borderBottom: '2px solid #bbb'}}>
-				{date}
+				{id}
 			</Heading>
 
 			<Box marginBottom={4} style={{position: 'relative'}}>
 				<Box style={{position: 'absolute', top: 0, bottom: 0, left: 0, width: '20%', overflowY: 'scroll'}}>
 				<ProducerDropZone
-					producers={unassigned}
-					onAssign={unassign}
-					accept={date}
+					consumerId={null}
+					producers={producers}
+					assignments={nullAssignments}
+					accept={id}
+					onAssign={assign}
 					stat={producerStat}
 				>
 					<Heading as="h3" style={{fontSize: '1em'}}>unassigned</Heading>
@@ -186,8 +199,9 @@ export default function Shift({date, producers, consumers, producerStat, onAssig
 								key={consumer.id}
 								consumer={consumer}
 								producers={producers}
+								assignments={shift.assignments.filter(({consumerId}) => consumerId === consumer.id)}
+								accept={id}
 								onAssign={assign}
-								accept={date}
 								producerStat={producerStat} />
 						))}
 					</tbody>

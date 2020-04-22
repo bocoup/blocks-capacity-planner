@@ -1,27 +1,33 @@
 import moment from 'moment';
 
-const isDayOfWeek = (date, dayOfWeek) => {
-	return moment(date).day() === moment().day(dayOfWeek).day();
-};
 const isTimeOfDay = (time, timeOfDay) => {
 	const hour = parseInt(time.split(':')[0], 10);
 	return (hour < 16) !== (timeOfDay === 'evening');
 };
 
-export default function buildShifts(windows, producers, consumers) {
-	return windows.map((window) => ({
-		window,
-		consumers: consumers.filter((consumer) => {
-			return consumer.times.some(({day, time}) => {
-				return isDayOfWeek(window.date, day) &&
-					isTimeOfDay(time, window.timeOfDay);
+export default function buildShifts({startDate, endDate, assignments}) {
+	const current = moment(startDate);
+	const end = moment(endDate);
+	const shifts = [];
+
+	if (!current.isValid() || !end.isValid() || current > end) {
+		return shifts;
+	}
+
+	while (!current.isSame(end, 'day')) {
+		for (const timeOfDay of ['afternoon', 'evening']) {
+			shifts.push({
+				date: current.format('YYYY-MM-DD'),
+				timeOfDay,
+				assignments: assignments.filter((assignment) => {
+					return current.isSame(assignment.time, 'day') &&
+						isTimeOfDay(moment(assignment.date).format('HH:MM'), timeOfDay);
+				}),
 			});
-		}),
-		producers: producers.filter((producer) => {
-			return producer.times.some(({day, timeOfDay}) => {
-				return isDayOfWeek(window.day, day) &&
-					timeOfDay === window.timeOfDay;
-			});
-		}),
-	}));
+		}
+
+		current.add(1, 'day');
+	}
+
+	return shifts;
 }
