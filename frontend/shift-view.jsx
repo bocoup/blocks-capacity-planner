@@ -205,21 +205,23 @@ export default function ShiftView({shift, producers, consumers, producerStat, on
 					width: '20%',
 					overflowY: 'auto'
 				}}>
-				<AssignmentDropTarget
-					consumerId={null}
-					accept={id}
-					onAssign={assign}
-				>
-					<Heading as="h4" style={{fontSize: '1em'}}>unassigned</Heading>
-
-					<AssignmentList
+					<AssignmentDropTarget
 						consumerId={null}
-						producers={producers}
-						assignments={nullAssignments}
-						stat={producerStat}
-						type={id}
-						/>
-				</AssignmentDropTarget>
+						accept={id}
+						onAssign={assign}
+					>
+						<Heading as="h4" style={{fontSize: '1em'}}>
+							unassigned
+						</Heading>
+
+						<AssignmentList
+							consumerId={null}
+							producers={producers}
+							assignments={nullAssignments}
+							stat={producerStat}
+							type={id}
+							/>
+					</AssignmentDropTarget>
 				</Box>
 
 				<table
