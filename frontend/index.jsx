@@ -25,6 +25,53 @@ loadCSSFromString(`
 	.clearfix {display: block}
 `);
 
+/**
+ * Apply an operation to a record in a table.
+ *
+ * @param {object} operation - plain object specifying the action to be taken
+ * @param {string} operation.name - one of "create", "delete", or "update"
+ * @param {airtable.Table} consumersTable - table describing all available
+ *                                          consumers; the records in this
+ *                                          table will not be modified
+ * @param {airtable.Table} deliveriesTable - table describing all available
+ *                                           deliveries; this is the table upon
+ *                                           which the operation is applied
+ */
+const execute = async (operation, consumersTable, deliveriesTable) => {
+	if (operation.name === 'create') {
+		// The "deliveries" table has many views which filter according to the
+		// "Region" field. Infer the appropriate value for this field by
+		// querying the "Chapter" field of the new delivery's consumer. This
+		// ensures that newly-created records appear in the relevant views of
+		// the "deliveries" table.
+		const queryResult = consumersTable.selectRecords({fields: ['Chapter']});
+		let chapters;
+
+		await queryResult.loadDataAsync();
+
+		try {
+			const record = queryResult.getRecordById(operation.consumerId);
+			chapters = record.getCellValue('Chapter');
+		} finally {
+			queryResult.unloadData();
+		}
+
+		deliveriesTable.createRecordAsync({
+			'Delivery Scheduled': operation.date,
+			Hospital: [{id: operation.consumerId}],
+			Restaurant: [{id: operation.producerId}],
+			'Number of Meals': operation.amount,
+			'Region': chapters,
+		});
+	} else if (operation.name === 'delete') {
+		deliveriesTable.deleteRecordAsync(operation.id);
+	} else if (operation.name === 'update') {
+		deliveriesTable.updateRecordAsync(operation.id, {
+			'Number of Meals': operation.amount
+		});
+	}
+};
+
 function CapacityPlanner() {
 	const [isShowingSettings, setIsShowingSettings] = useState(false);
 	const globalConfig = useGlobalConfig();
@@ -117,42 +164,15 @@ function CapacityPlanner() {
 			return consumerIds.has(consumerId) && producerIds.has(producerId);
 		});
 
-	const assign = (operations) => {
-		operations.forEach(async (operation) => {
-			if (operation.name === 'create') {
-				const queryResult = consumersTable.selectRecords({fields: ['Chapter']});
-				let chapters;
-
-				await queryResult.loadDataAsync();
-
-				try {
-					const record = queryResult.getRecordById(operation.consumerId);
-					chapters = record.getCellValue('Chapter');
-				} finally {
-					queryResult.unloadData();
-				}
-				deliveriesTable.createRecordAsync({
-					'Delivery Scheduled': operation.date,
-					Hospital: [{id: operation.consumerId}],
-					Restaurant: [{id: operation.producerId}],
-					'Number of Meals': operation.amount,
-					'Region': chapters,
-				});
-			} else if (operation.name === 'delete') {
-				deliveriesTable.deleteRecordAsync(operation.id);
-			} else if (operation.name === 'update') {
-				deliveriesTable.updateRecordAsync(operation.id, {
-					'Number of Meals': operation.amount
-				});
-			}
-		});
-	};
-
 	return <Chooser
 		consumers={consumers}
 		producers={producers}
 		assignments={assignments}
-		onAssign={assign}
+		onAssign={(operations) => {
+			operations.forEach((operation) => {
+				execute(operation, consumersTable, deliveriesTable);
+			});
+		}}
 		/>;
 }
 
