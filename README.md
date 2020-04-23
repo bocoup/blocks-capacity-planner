@@ -1,7 +1,13 @@
-# capacity planner block
+# Capacity planner block
 
-An application for Airtable.com which helps users connect consumers and
-producers, creating a schedule of discrete deliveries.
+An Airtable Block which helps you plan how to allocate capacity from consumers
+to producers, and create a schedule of.
+
+## An airtable what?
+
+An [Airtable Block](https://airtable.com/developers/blocks) is a custom,
+resuable web application that you can run inside of an Airtable base to
+visualize, manipulate and process data from that base.
 
 ## Terminology
 
@@ -12,13 +18,21 @@ producers, creating a schedule of discrete deliveries.
   more day-of-week/time-of-day pairs)
 - **shift** - a day of the week and a time of day, e.g. "Tuesday afternoon"
 
-This block was initially developed for use in disaster relief planning. In this
-context, "consumers" were hospitals whose "need" was measured in number of
-workers looking for a meal at the end of their work day. "Producers" were
-locally-owned restaurants whose "capacity" was measured in the number of meals
-they were capable of delivering. Volunteers used this tool to create weekly
-schedules, facilitating weekly deliveries to help independent businesses feed
-hospital workers in their communities.
+This block was initially developed for use by volunteer organizers during the
+covid-19 pandemic to plan weekly schedules for meal deliveries from restaurants
+to hospitals. In this context, "consumers" were hospitals with delivery times
+and "producers" were restaurants with shifts. Capacity in this context was
+measured in the number of meals a restaurants could deliver to a hospital.
+
+## How to run this block
+
+1. Create a new base using the
+   [Capacity Planning Example Base](https://airtable.com/invite/l?inviteId=inv4VdlJpmw7Jiwv0&inviteToken=1a104ad9356cd575e76e2437b670c4c8b1a51fa7bf75114091f1bd4534c5052d).
+2. Create a new custom block your new base.
+3. Clone this repository and install the block CLI
+4. From the root of your new block, run `block run`.
+5. Paste the uri that it gives you into the 'edit block' input back on airtable.com.
+
 
 ## License
 
