@@ -44,11 +44,6 @@ const producerStats = [
 	{value: 'price', label: 'Price'}
 ];
 
-const purchaseStrategies = [
-	{value: 'cheap', label: 'Cheap'},
-	{value: 'fair', label: 'Fair'}
-];
-
 export default function Chooser({producers, consumers, assignments, onAssign}) {
 	consumers = annotateExtremes(consumers, 'need');
 	producers = annotateExtremes(producers, 'capacity');
@@ -56,7 +51,6 @@ export default function Chooser({producers, consumers, assignments, onAssign}) {
 
 	const [sort, setSort] = useState('name');
 	const [producerStat, setProducerStat] = useState(null);
-	const [strategy, setStrategy] = useState('cheap');
 	const [budget, setBudget] = useState(10 * 1000);
 	const [startDate, setStartDate] = useState(
 		() => moment().set('day', 0).add(1, 'week').format('YYYY-MM-DD')
@@ -114,12 +108,6 @@ export default function Chooser({producers, consumers, assignments, onAssign}) {
 				<Box paddingRight={3}>
 					<FormField label="Producer statistic">
 						<Select options={producerStats} value={producerStat} onChange={setProducerStat} />
-					</FormField>
-				</Box>
-
-				<Box paddingRight={3}>
-					<FormField label="Purchase strategy">
-						<Select options={purchaseStrategies} value={strategy} onChange={setStrategy} />
 					</FormField>
 				</Box>
 
