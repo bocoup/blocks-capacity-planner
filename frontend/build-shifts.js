@@ -1,6 +1,6 @@
 import moment from 'moment';
 
-import isTimeOfDay from './is-time-of-day';
+import isTimeOfDay from './is-time-of-day.js';
 
 export default function buildShifts({startDate, endDate, assignments}) {
 	const current = moment.utc(startDate);
