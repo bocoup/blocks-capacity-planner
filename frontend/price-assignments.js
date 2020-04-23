@@ -8,7 +8,7 @@ export default function priceAssignments({
 
 	return assignments
 		.filter(({consumerId, date}) => {
-			return consumerId !== null && moment(date).isBetween(start, end);;
+			return consumerId !== null && moment(date).isBetween(start, end);
 		})
 		.reduce((total, assignment) => {
 			const producer = producers.find(({id}) => id === assignment.producerId);
