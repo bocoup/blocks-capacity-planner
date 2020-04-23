@@ -18,8 +18,8 @@ export default function buildShifts({startDate, endDate, assignments}) {
 				day: current.format('dddd'),
 				timeOfDay,
 				assignments: assignments.filter((assignment) => {
-					return current.isSame(assignment.time, 'day') &&
-						isTimeOfDay(moment(assignment.time).format('HH:MM'), timeOfDay);
+					return current.isSame(assignment.date, 'day') &&
+						isTimeOfDay(moment(assignment.date).format('HH:MM'), timeOfDay);
 				}),
 			});
 		}

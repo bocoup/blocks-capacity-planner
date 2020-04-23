@@ -177,15 +177,12 @@ export default function ShiftView({shift, producers, consumers, producerStat, on
 			nullAssignments : shift.assignments;
 		const assignment = source.find(({id}) => id === sourceAssignmentId);
 
-		// TODO(jugglinmike): Build a set of instructions describing table
-		// operations and pass those along to the parent component.
 		onAssign(assignmentInstructions({
 			consumers,
 			assignments: shift.assignments,
 			assignment,
 			consumerId: newConsumerId,
-			date: shift.date,
-			time,
+			date: `${shift.date}T${time}:00.000Z`,
 		}));
 	};
 	const consumerRows = consumers.map((consumer) => {

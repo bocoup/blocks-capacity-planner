@@ -1,5 +1,5 @@
 export default function assignmentInstructions({
-	consumers, assignments, assignment, consumerId, date, time
+	consumers, assignments, assignment, consumerId, date
 }) {
 	const isAllocated = assignments.some(({id}) => id === assignment.id);
 
@@ -20,8 +20,7 @@ export default function assignmentInstructions({
 	const met = assignments
 		.filter((assignment) => {
 			return assignment.consumerId === consumerId &&
-				assignment.date === date &&
-				assignment.time === time;
+				assignment.date === date;
 		})
 		.reduce((total, {amount}) => total + amount, 0);
 
@@ -34,7 +33,6 @@ export default function assignmentInstructions({
 		return otherAssignment.consumerId === consumerId &&
 			otherAssignment.producerId === assignment.producerId &&
 			otherAssignment.date === date &&
-			otherAssignment.time === time &&
 			otherAssignment.id !== assignment.id;
 		});
 
@@ -78,7 +76,6 @@ export default function assignmentInstructions({
 			producerId: assignment.producerId,
 			amount,
 			date,
-			time,
 		}
 	];
 

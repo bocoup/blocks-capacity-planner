@@ -111,7 +111,7 @@ function CapacityPlanner() {
 			consumerId: getLinkedId(record, 'Hospital'),
 			producerId: getLinkedId(record, 'Restaurant'),
 			amount: record.getCellValue('Number of Meals'),
-			time: record.getCellValue('Delivery Scheduled'),
+			date: record.getCellValue('Delivery Scheduled'),
 		}))
 		.filter(({consumerId, producerId}) => {
 			return consumerIds.has(consumerId) && producerIds.has(producerId);
@@ -132,7 +132,7 @@ function CapacityPlanner() {
 					queryResult.unloadData();
 				}
 				deliveriesTable.createRecordAsync({
-					'Delivery Scheduled': `${operation.date}T${operation.time}:00.000Z`,
+					'Delivery Scheduled': operation.date,
 					Hospital: [{id: operation.consumerId}],
 					Restaurant: [{id: operation.producerId}],
 					'Number of Meals': operation.amount,
