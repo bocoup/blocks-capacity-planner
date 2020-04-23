@@ -67,8 +67,8 @@ export default function Chooser({producers, consumers, assignments, onAssign}) {
 	const [isShowingConstraints, setShowingConstraints] = useState(false);
 
 	const cost = useMemo(
-		() => priceAssignments({producers, assignments}),
-		[producers, assignments]
+		() => priceAssignments({producers, assignments, startDate, endDate}),
+		[producers, assignments, startDate, endDate]
 	);
 
 	const barColor = cost / budget <= 1 ? '#32a852' : '#a00';
