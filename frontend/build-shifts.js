@@ -3,8 +3,8 @@ import moment from 'moment';
 import isTimeOfDay from './is-time-of-day';
 
 export default function buildShifts({startDate, endDate, assignments}) {
-	const current = moment(startDate);
-	const end = moment(endDate);
+	const current = moment.utc(startDate);
+	const end = moment.utc(endDate);
 	const shifts = [];
 
 	if (!current.isValid() || !end.isValid() || current > end) {
@@ -19,7 +19,7 @@ export default function buildShifts({startDate, endDate, assignments}) {
 				timeOfDay,
 				assignments: assignments.filter((assignment) => {
 					return current.isSame(assignment.date, 'day') &&
-						isTimeOfDay(moment(assignment.date).format('HH:MM'), timeOfDay);
+						isTimeOfDay(moment.utc(assignment.date).format('HH:MM'), timeOfDay);
 				}),
 			});
 		}
