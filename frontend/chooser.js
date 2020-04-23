@@ -122,10 +122,6 @@ export default function Chooser({producers, consumers, assignments, onAssign}) {
 					<ProgressBar progress={cost/budget} barColor={barColor} style={{height: '1em'}} />
 					${cost} of ${budget}
 				</Box>
-
-				<Button icon="thumbsUp" variant="primary" disabled={true}>
-					Apply Schedule
-				</Button>
 			</Box>
 		</Box>
 	);
