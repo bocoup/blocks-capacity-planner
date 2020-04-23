@@ -13,7 +13,7 @@ import buildNullAssignments from './build-null-assignments';
 import isTimeOfDay from './is-time-of-day';
 import Rating from './rating';
 
-function ProducerDropZone({as, children, consumerId, onAssign, accept, ...rest}) {
+function AssignmentDropTarget({as, children, consumerId, onAssign, accept, ...rest}) {
 	const El = as || 'div';
 	const [, drop] = useDrop({
 		accept,
@@ -29,7 +29,7 @@ function ProducerDropZone({as, children, consumerId, onAssign, accept, ...rest})
 	);
 }
 
-function ProducerList({consumerId, style, producers, assignments, stat, type}) {
+function AssignmentList({consumerId, style, producers, assignments, stat, type}) {
 	const items = assignments
 		.filter((assignment) => assignment.consumerId === consumerId)
 		.map((assignment) => (
@@ -100,7 +100,7 @@ function ConsumerRow({
 	);
 
 	return (
-		<ProducerDropZone
+		<AssignmentDropTarget
 			as="tbody"
 			consumerId={consumer.id}
 			onAssign={assign}
@@ -132,7 +132,7 @@ function ConsumerRow({
 			</tr>
 			<tr style={{backgroundColor: '#eee'}}>
 				<td colSpan="2" style={{padding: '0.3em 0 0 0.3em'}}>
-					<ProducerList
+					<AssignmentList
 						style={{minHeight: '3em'}}
 						consumerId={consumer.id}
 						producers={producers}
@@ -143,7 +143,7 @@ function ConsumerRow({
 				</td>
 				<td colSpan="3"></td>
 			</tr>
-		</ProducerDropZone>
+		</AssignmentDropTarget>
 	);
 }
 
@@ -205,21 +205,21 @@ export default function ShiftView({shift, producers, consumers, producerStat, on
 					width: '20%',
 					overflowY: 'auto'
 				}}>
-				<ProducerDropZone
+				<AssignmentDropTarget
 					consumerId={null}
 					accept={id}
 					onAssign={assign}
 				>
 					<Heading as="h4" style={{fontSize: '1em'}}>unassigned</Heading>
 
-					<ProducerList
+					<AssignmentList
 						consumerId={null}
 						producers={producers}
 						assignments={nullAssignments}
 						stat={producerStat}
 						type={id}
 						/>
-				</ProducerDropZone>
+				</AssignmentDropTarget>
 				</Box>
 
 				<table
