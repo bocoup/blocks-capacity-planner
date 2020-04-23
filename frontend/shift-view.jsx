@@ -8,10 +8,10 @@ import {
 	ProgressBar,
 } from '@airtable/blocks/ui';
 
-import Rating from './rating';
-
-import _assign from './assign';
+import assignmentInstructions from './assignment-instructions';
 import buildNullAssignments from './build-null-assignments';
+import isTimeOfDay from './is-time-of-day';
+import Rating from './rating';
 
 const useAssignments = (consumers, producers) => {
 	const [assignments, setAssignments] = useState(() => {
@@ -64,7 +64,7 @@ function ProducerDropZone({children, consumerId, producers, assignments, onAssig
 	const [, drop] = useDrop({
 		accept,
 		drop(item) {
-			onAssign(item.id, consumerId);
+			onAssign({sourceAssignmentId: item.id, newConsumerId: consumerId});
 		}
 	});
 	const items = assignments
@@ -111,8 +111,8 @@ function AssignmentItem({producer, assignment, type, stat}) {
 	);
 }
 
-function Consumer({
-	consumer, producers, assignments, onAssign, accept, producerStat
+function ConsumerRow({
+	consumer, time, producers, assignments, onAssign, accept, producerStat
 }) {
 	const provided = assignments.reduce((total, assignment) => {
 		return total + assignment.amount;
@@ -128,6 +128,11 @@ function Consumer({
 		icon = 'warning';
 	}
 
+	const assign = useCallback(
+		(data) => onAssign({time, ...data}),
+		[time, onAssign]
+	);
+
 	return (
 		<tr>
 			<td width="50%">
@@ -136,13 +141,18 @@ function Consumer({
 					producers={producers}
 					assignments={assignments}
 					accept={accept}
-					onAssign={onAssign}
+					onAssign={assign}
 					stat={producerStat}
 					>
-					<Heading as="h3" style={{fontSize: '1em'}}>{consumer.name}</Heading>
+					<header className="clearfix">
+						<Heading as="h3" style={{fontSize: '1em', float: 'left'}}>
+							{consumer.name}
+						</Heading>
+						<span style={{float: 'right'}}>{time}</span>
+					</header>
 				</ProducerDropZone>
 			</td>
-			<td style={{width:'10%', textAlign: 'center'}}>
+			<td style={{width: '10%', textAlign: 'center'}}>
 				{provided} / {consumer.need}
 			</td>
 			<td style={{width: 'calc(40% - 30px)'}}>
@@ -162,15 +172,43 @@ export default function ShiftView({shift, producers, consumers, producerStat, on
 	const nullAssignments = buildNullAssignments(
 		shift.date, shift.timeOfDay, producers, shift.assignments
 	);
-	const assign = (assignmentId, consumerId) => {
-		const source = /^NullAssignment:/.test(assignmentId) ?
+	const assign = ({sourceAssignmentId, time, newConsumerId}) => {
+		const source = /^NullAssignment:/.test(sourceAssignmentId) ?
 			nullAssignments : shift.assignments;
-		const assignment = source.find(({id}) => id === assignmentId);
+		const assignment = source.find(({id}) => id === sourceAssignmentId);
 
 		// TODO(jugglinmike): Build a set of instructions describing table
 		// operations and pass those along to the parent component.
-		onAssign(assignment, consumerId);
+		onAssign(assignmentInstructions({
+			consumers,
+			assignments: shift.assignments,
+			assignment,
+			consumerId: newConsumerId,
+			date: shift.date,
+			time,
+		}));
 	};
+	const consumerRows = consumers.map((consumer) => {
+		const time = consumer.times.find(({day, time}) => {
+			return day === shift.day && isTimeOfDay(time, shift.timeOfDay);
+		});
+
+		if (!time) {
+			return null;
+		}
+
+		return (
+			<ConsumerRow
+				key={consumer.id}
+				consumer={consumer}
+				time={time.time}
+				producers={producers}
+				assignments={shift.assignments.filter(({consumerId}) => consumerId === consumer.id)}
+				accept={id}
+				onAssign={assign}
+				producerStat={producerStat} />
+		);
+	});
 
 	return (
 		<DndProvider backend={Backend}>
@@ -194,16 +232,7 @@ export default function ShiftView({shift, producers, consumers, producerStat, on
 
 				<table style={{marginLeft: '20%', width: '80%', paddingLeft: '1em'}}>
 					<tbody>
-						{consumers.map((consumer) => (
-							<Consumer
-								key={consumer.id}
-								consumer={consumer}
-								producers={producers}
-								assignments={shift.assignments.filter(({consumerId}) => consumerId === consumer.id)}
-								accept={id}
-								onAssign={assign}
-								producerStat={producerStat} />
-						))}
+						{consumerRows}
 					</tbody>
 				</table>
 			</Box>

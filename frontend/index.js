@@ -117,8 +117,36 @@ function CapacityPlanner() {
 			return consumerIds.has(consumerId) && producerIds.has(producerId);
 		});
 
-	// TODO(jugglinmike): Implement
-	const assign = () => {};
+	const assign = (operations) => {
+		operations.forEach(async (operation) => {
+			if (operation.name === 'create') {
+				const queryResult = consumersTable.selectRecords({fields: ['Chapter']});
+				let chapters;
+
+				await queryResult.loadDataAsync();
+
+				try {
+					const record = queryResult.getRecordById(operation.consumerId);
+					chapters = record.getCellValue('Chapter');
+				} finally {
+					queryResult.unloadData();
+				}
+				deliveriesTable.createRecordAsync({
+					'Delivery Scheduled': `${operation.date}T${operation.time}:00.000Z`,
+					Hospital: [{id: operation.consumerId}],
+					Restaurant: [{id: operation.producerId}],
+					'Number of Meals': operation.amount,
+					'Region': chapters,
+				});
+			} else if (operation.name === 'delete') {
+				deliveriesTable.deleteRecordAsync(operation.id);
+			} else if (operation.name === 'update') {
+				deliveriesTable.updateRecordAsync(operation.id, {
+					'Number of Meals': operation.amount
+				});
+			}
+		});
+	};
 
 	return <Chooser
 		consumers={consumers}

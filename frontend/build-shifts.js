@@ -1,9 +1,6 @@
 import moment from 'moment';
 
-const isTimeOfDay = (time, timeOfDay) => {
-	const hour = parseInt(time.split(':')[0], 10);
-	return (hour < 16) !== (timeOfDay === 'evening');
-};
+import isTimeOfDay from './is-time-of-day';
 
 export default function buildShifts({startDate, endDate, assignments}) {
 	const current = moment(startDate);
@@ -18,10 +15,11 @@ export default function buildShifts({startDate, endDate, assignments}) {
 		for (const timeOfDay of ['afternoon', 'evening']) {
 			shifts.push({
 				date: current.format('YYYY-MM-DD'),
+				day: current.format('dddd'),
 				timeOfDay,
 				assignments: assignments.filter((assignment) => {
 					return current.isSame(assignment.time, 'day') &&
-						isTimeOfDay(moment(assignment.date).format('HH:MM'), timeOfDay);
+						isTimeOfDay(moment(assignment.time).format('HH:MM'), timeOfDay);
 				}),
 			});
 		}

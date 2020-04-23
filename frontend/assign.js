@@ -1,7 +1,9 @@
 export default function assign(
 	consumers, producers, assignments, fromConsumerId, toConsumerId, producerId
 ) {
+	const fromConsumer = consumers.find(({id}) => id === fromConsumerId);
 	const toConsumer = consumers.find(({id}) => id === toConsumerId);
+	const producer = producers.find(({id}) => id === producerId);
 	const unmet = toConsumer.need - assignments.reduce(
 		(memo, assignment) => {
 			return memo + 
@@ -33,4 +35,4 @@ export default function assign(
 	}
 
 	return newAssignments;
-}
+};
