@@ -13,53 +13,6 @@ import buildNullAssignments from './build-null-assignments';
 import isTimeOfDay from './is-time-of-day';
 import Rating from './rating';
 
-const useAssignments = (consumers, producers) => {
-	const [assignments, setAssignments] = useState(() => {
-		return Object.freeze(producers.map((producer) => {
-			return {
-				consumerId: null,
-				producerId: producer.id,
-				amount: producer.capacity,
-			};
-		}));
-	});
-	const assign = useCallback(
-		(fromConsumerId, toConsumerId, producerId) => {
-			setAssignments(_assign(
-				consumers,
-				producers,
-				assignments,
-				fromConsumerId,
-				toConsumerId,
-				producerId
-			));
-		},
-		[consumers, producers]
-	);
-
-	return [assignments, assign];
-};
-
-const useProducers = (_producers) => {
-	const [producers, setProducers] = useState(
-		() => Object.freeze(_producers.map((producer) => Object.freeze(Object.assign({}, producer, {assignment: null}))))
-	);
-	const assign = useCallback(
-		(consumerId, producerId) => {
-			setProducers(Object.freeze(producers.map((producer) => {
-				return Object.freeze(Object.assign(
-					{},
-					producer,
-					producer.id === producerId ? {assignment: consumerId} : null
-				));
-			})));
-		},
-		[producers]
-	);
-
-	return [producers, assign];
-};
-
 function ProducerDropZone({as, children, consumerId, onAssign, accept, ...rest}) {
 	const El = as || 'div';
 	const [, drop] = useDrop({
