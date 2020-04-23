@@ -60,13 +60,23 @@ const useProducers = (_producers) => {
 	return [producers, assign];
 };
 
-function ProducerDropZone({children, consumerId, producers, assignments, onAssign, accept, stat}) {
+function ProducerDropZone({as, children, consumerId, onAssign, accept, ...rest}) {
+	const El = as || 'div';
 	const [, drop] = useDrop({
 		accept,
 		drop(item) {
 			onAssign({sourceAssignmentId: item.id, newConsumerId: consumerId});
 		}
 	});
+
+	return (
+		<El ref={drop} {...rest}>
+			{children}
+		</El>
+	);
+}
+
+function ProducerList({consumerId, style, producers, assignments, stat, type}) {
 	const items = assignments
 		.filter((assignment) => assignment.consumerId === consumerId)
 		.map((assignment) => (
@@ -74,17 +84,13 @@ function ProducerDropZone({children, consumerId, producers, assignments, onAssig
 				key={assignment.producerId}
 				assignment={assignment}
 				producer={producers.find(({id}) => id === assignment.producerId)}
-				type={accept}
+				type={type}
 				stat={stat} />));
 
 	return (
-		<div ref={drop}>
-			{children}
-
-			<ul style={{listStyleType: 'none', margin: 0, padding: 0}}>
-				{items}
-			</ul>
-		</div>
+		<ul style={{listStyleType: 'none', margin: 0, padding: 0, ...style}}>
+			{items}
+		</ul>
 	);
 }
 
@@ -97,7 +103,14 @@ function AssignmentItem({producer, assignment, type, stat}) {
 		<li
 			ref={drag}
 			className="clearfix"
-			style={{cursor: 'pointer', border: 'solid 1px #ddd', borderRadius: '0.4em', padding: '0.2em', margin: '0.2em'}}
+			style={{
+				cursor: 'pointer',
+				border: 'solid 1px #ddd',
+				borderRadius: '0.4em',
+				padding: '0.5em',
+				margin: '0.3em 0',
+				backgroundColor: '#fff'
+			}}
 			>
 			<span style={{float: 'left'}}>{producer.name} ({assignment.amount}/{producer.capacity})</span>
 			{stat ?
@@ -134,36 +147,50 @@ function ConsumerRow({
 	);
 
 	return (
-		<tr>
-			<td width="50%">
-				<ProducerDropZone
-					consumerId={consumer.id}
-					producers={producers}
-					assignments={assignments}
-					accept={accept}
-					onAssign={assign}
-					stat={producerStat}
-					>
-					<header className="clearfix">
-						<Heading as="h3" style={{fontSize: '1em', float: 'left'}}>
-							{consumer.name}
-						</Heading>
-						<span style={{float: 'right'}}>{time}</span>
-					</header>
-				</ProducerDropZone>
-			</td>
-			<td style={{width: '10%', textAlign: 'center'}}>
-				{provided} / {consumer.need}
-			</td>
-			<td style={{width: 'calc(40% - 30px)'}}>
-				<Box width={`${100*consumer.need/consumer.maxneed}%`}>
-					<ProgressBar progress={fulfillment} barColor="#888" />
-				</Box>
-			</td>
-			<td style={{width: '30px', textAlign: 'center'}}>
-				<Icon name={icon} />
-			</td>
-		</tr>
+		<ProducerDropZone
+			as="tbody"
+			consumerId={consumer.id}
+			onAssign={assign}
+			accept={accept}>
+			<tr style={{backgroundColor: '#ddd'}}>
+				<td style={{padding: '0.3em 0 0 0.3em'}}>
+					<Heading as="h4" style={{fontSize: '1em', margin: 0}}>
+						{consumer.name}
+					</Heading>
+				</td>
+				<td style={{paddingRight: '1em'}}>
+					{time}
+				</td>
+				<td style={{whiteSpace: 'nowrap', paddingRight: '1em'}}>
+					{provided} / {consumer.need}
+				</td>
+				<td style={{width: '40%'}}>
+					<Box width={`${100*consumer.need/consumer.maxneed}%`}>
+						<ProgressBar
+							height="1em"
+							progress={fulfillment}
+							barColor="#888"
+							/>
+					</Box>
+				</td>
+				<td style={{padding: '0.3em 0.3em 0 0'}}>
+					<Icon name={icon} />
+				</td>
+			</tr>
+			<tr style={{backgroundColor: '#eee'}}>
+				<td colSpan="2" style={{padding: '0.3em 0 0 0.3em'}}>
+					<ProducerList
+						style={{minHeight: '3em'}}
+						consumerId={consumer.id}
+						producers={producers}
+						assignments={assignments}
+						stat={producerStat}
+						type={accept}
+					/>
+				</td>
+				<td colSpan="3"></td>
+			</tr>
+		</ProducerDropZone>
 	);
 }
 
@@ -209,28 +236,52 @@ export default function ShiftView({shift, producers, consumers, producerStat, on
 
 	return (
 		<DndProvider backend={Backend}>
-			<Heading as="h3" style={{borderBottom: '2px solid #bbb'}}>
-				{id}
-			</Heading>
+			<header className="clearfix">
+				<Heading as="h3" style={{float: 'left'}}>
+					{shift.day} {shift.timeOfDay}
+				</Heading>
+				<span style={{float: 'right'}}>{shift.date}</span>
+			</header>
 
 			<Box marginBottom={4} style={{position: 'relative'}}>
-				<Box style={{position: 'absolute', top: 0, bottom: 0, left: 0, width: '20%', overflowY: 'scroll'}}>
+				<Box style={{
+					position: 'absolute',
+					top: 0,
+					bottom: 0,
+					left: 0,
+					width: '20%',
+					overflowY: 'auto'
+				}}>
 				<ProducerDropZone
 					consumerId={null}
-					producers={producers}
-					assignments={nullAssignments}
 					accept={id}
 					onAssign={assign}
-					stat={producerStat}
 				>
-					<Heading as="h3" style={{fontSize: '1em'}}>unassigned</Heading>
+					<Heading as="h4" style={{fontSize: '1em'}}>unassigned</Heading>
+
+					<ProducerList
+						consumerId={null}
+						producers={producers}
+						assignments={nullAssignments}
+						stat={producerStat}
+						type={id}
+						/>
 				</ProducerDropZone>
 				</Box>
 
-				<table style={{marginLeft: '20%', width: '80%', paddingLeft: '1em'}}>
-					<tbody>
-						{consumerRows}
-					</tbody>
+				<table
+					cellSpacing="0"
+					style={{marginLeft: '20%', width: '80%', paddingLeft: '1em'}}>
+					<thead>
+						<tr>
+							<td>Name</td>
+							<td>Time</td>
+							<td colSpan="3" style={{textAlign: 'center'}}>
+								Fulfillment
+							</td>
+						</tr>
+					</thead>
+					{consumerRows}
 				</table>
 			</Box>
 		</DndProvider>
