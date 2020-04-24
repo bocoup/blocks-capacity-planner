@@ -3,11 +3,14 @@ import {base} from '@airtable/blocks';
 import {
 	Box,
 	FormField,
+	Select,
 	TablePickerSynced,
 	ViewPickerSynced,
 	useGlobalConfig,
 	useRecordIds,
 } from '@airtable/blocks/ui';
+
+const timezoneDescription = 'The time zone by which all dates should be interpreted. Support for local times is not yet implemented.';
 
 export default function Settings() {
 	const globalConfig = useGlobalConfig();
@@ -68,6 +71,17 @@ export default function Settings() {
 			</div>
 
 			<h3>{producerIds ? producerIds.length : 0} consumers selected</h3>
+
+			<FormField label="Time zone" description={timezoneDescription}>
+				<Select
+					value="utc"
+					disabled={true}
+					options={[
+						{label: 'UTC', value: 'utc'},
+						{label: 'Local', value:'local'},
+					]}
+					/>
+			</FormField>
 		</Box>
 	);
 };

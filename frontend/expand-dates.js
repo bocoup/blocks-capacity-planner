@@ -13,7 +13,7 @@ export default function expandDates(startDate, endDate, times) {
 
   while (current <= end) {
     for (const {day, time} of times) {
-      if (moment().day(day).day() !== current.day()) {
+      if (moment.utc().day(day).day() !== current.day()) {
         continue;
       }
       const [hour, minute] = time.split(':').map((part) => parseInt(part, 10));

@@ -2,7 +2,7 @@ import moment from 'moment';
 
 function producerIsAvailable(dateMoment, timeOfDay, producer) {
 	return producer.times.some((time) => {
-		return dateMoment.day() === moment().day(time.day).day() &&
+		return dateMoment.day() === moment.utc().day(time.day).day() &&
 			timeOfDay === time.timeOfDay;
 	});
 }
@@ -10,7 +10,7 @@ function producerIsAvailable(dateMoment, timeOfDay, producer) {
 let count = 0;
 
 export default function buildNullAssignments(date, timeOfDay, producers, assignments) {
-	const dateMoment = moment(date);
+	const dateMoment = moment.utc(date);
 	return producers
 		.filter((producer) => producerIsAvailable(dateMoment, timeOfDay, producer))
 		.map((producer) => {

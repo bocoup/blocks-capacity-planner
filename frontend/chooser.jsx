@@ -53,10 +53,10 @@ export default function Chooser({producers, consumers, assignments, onAssign}) {
 	const [producerStat, setProducerStat] = useState(null);
 	const [budget, setBudget] = useState(10 * 1000);
 	const [startDate, setStartDate] = useState(
-		() => moment().set('day', 0).add(1, 'week').format('YYYY-MM-DD')
+		() => moment().set('day', 0).startOf('day').utc().startOf('day').add(1, 'week').format()
 	);
 	const [endDate, setEndDate] = useState(
-		() => moment().set('day', 0).add(2, 'week').format('YYYY-MM-DD')
+		() => moment().set('day', 0).startOf('day').utc().startOf('day').add(2, 'week').format()
 	);
 	const [isShowingConstraints, setShowingConstraints] = useState(false);
 

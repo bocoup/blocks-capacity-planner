@@ -24,6 +24,11 @@ to hospitals. In this context, "consumers" were hospitals with delivery times
 and "producers" were restaurants with shifts. Capacity in this context was
 measured in the number of meals a restaurants could deliver to a hospital.
 
+## Time zones
+
+This application interprets all dates in terms of Coordinated Universal Time
+(UTC).
+
 ## How to run this block
 
 1. Create a new base using the
