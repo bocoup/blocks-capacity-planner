@@ -16,7 +16,7 @@
     },
     "type": "module",
     "scripts": {
-        "lint": "eslint frontend",
+        "lint": "eslint --ext js --ext jsx frontend",
         "test": "mocha --ui tdd --experimental-modules test"
     }
 }

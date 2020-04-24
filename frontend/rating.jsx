@@ -30,4 +30,4 @@ export default function Rating({style, value, max, min}) {
 			</span>
 		</Tooltip>
 	);
-};
+}

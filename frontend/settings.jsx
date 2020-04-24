@@ -24,8 +24,6 @@ export default function Settings() {
 	const producersViewId = globalConfig.get('producersViewId');
 	const producersView = producersTable &&
 		producersTable.getViewByIdIfExists(producersViewId);
-	const deliveriesTableId = globalConfig.get('deliveriesTableId');
-	const deliveriesTable = base.getTableByIdIfExists(deliveriesTableId);
 
 	const consumerIds = useRecordIds(consumersView || consumersTable);
 	const producerIds = useRecordIds(producersView || producersTable);
@@ -84,4 +82,4 @@ export default function Settings() {
 			</FormField>
 		</Box>
 	);
-};
+}
