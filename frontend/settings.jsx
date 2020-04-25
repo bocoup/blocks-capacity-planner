@@ -4,13 +4,20 @@ import {
 	Box,
 	FormField,
 	Select,
+	FieldPickerSynced,
 	TablePickerSynced,
 	ViewPickerSynced,
 	useGlobalConfig,
 	useRecordIds,
 } from '@airtable/blocks/ui';
+import {FieldType} from '@airtable/blocks/models';
 
 const timezoneDescription = 'The time zone by which all dates should be interpreted. Support for local times is not yet implemented.';
+const fieldStyle = {
+	display: 'inline-block',
+	width: '20em',
+	marginRight: '2em',
+};
 
 export default function Settings() {
 	const globalConfig = useGlobalConfig();
@@ -24,62 +31,201 @@ export default function Settings() {
 	const producersViewId = globalConfig.get('producersViewId');
 	const producersView = producersTable &&
 		producersTable.getViewByIdIfExists(producersViewId);
+	const deliveriesTableId = globalConfig.get('deliveriesTableId');
+	const deliveriesTable = base.getTableByIdIfExists(deliveriesTableId);
 
 	const consumerIds = useRecordIds(consumersView || consumersTable);
 	const producerIds = useRecordIds(producersView || producersTable);
 
 	return (
 		<Box padding={2}>
-			<FormField label="Deliveries table">
-				<TablePickerSynced globalConfigKey="deliveriesTableId" />
-			</FormField>
+			<h1 style={{margin: '0 0 1em 0'}}>
+				Configuration
+			</h1>
 
-			<div className="clearfix">
+			<fieldset style={{marginBottom: '1em'}}>
+				<legend>Deliveries schema</legend>
+
+				<FormField
+					label="Deliveries table"
+					style={{width: '48%'}}>
+					<TablePickerSynced globalConfigKey="deliveriesTableId" />
+				</FormField>
+
+				<FormField
+					label={'Field for "Consumers"'}
+					style={fieldStyle}>
+					<FieldPickerSynced
+						globalConfigKey="assignments:consumer"
+						allowedTypes={[FieldType.MULTIPLE_RECORD_LINKS]}
+						table={deliveriesTable}
+					/>
+				</FormField>
+
+				<FormField
+					label={'Field for "Producers"'}
+					style={fieldStyle}>
+					<FieldPickerSynced
+						globalConfigKey="assignments:producer"
+						allowedTypes={[FieldType.MULTIPLE_RECORD_LINKS]}
+						table={deliveriesTable}
+					/>
+				</FormField>
+
+				<FormField
+					label={'Field for "Delivery Size"'}
+					style={fieldStyle}>
+					<FieldPickerSynced
+						globalConfigKey="assignments:amount"
+						allowedTypes={[FieldType.NUMBER]}
+						table={deliveriesTable}
+					/>
+				</FormField>
+
+				<FormField
+					label={'Field for "Delivery Time"'}
+					style={fieldStyle}>
+					<FieldPickerSynced
+						globalConfigKey="assignments:date"
+						allowedTypes={[FieldType.DATE_TIME]}
+						table={deliveriesTable}
+					/>
+				</FormField>
+
+				<FormField
+					label={'Field for "Region"'}
+					style={fieldStyle}>
+					<FieldPickerSynced
+						globalConfigKey="assignments:region"
+						allowedTypes={[FieldType.MULTIPLE_RECORD_LINKS]}
+						table={deliveriesTable}
+					/>
+				</FormField>
+			</fieldset>
+
+			<fieldset style={{marginBottom: '1em'}}>
+				<legend>Consumers schema</legend>
+
 				<FormField
 					label="Consumers table"
-					style={{width: '50%', float: 'left'}}>
+					style={{width: '48%', display: 'inline-block', marginRight: '4%'}}>
 					<TablePickerSynced globalConfigKey="consumersTableId" />
 				</FormField>
+
 				<FormField
-					label="Consumers view"
-					style={{width: '50%', float: 'left'}}>
+					label="Consumers view (optional)"
+					style={{width: '48%', display: 'inline-block'}}>
 					<ViewPickerSynced
 						shouldAllowPickingNone={true}
 						globalConfigKey="consumersViewId"
 						table={consumersTable} />
 				</FormField>
-			</div>
 
-			<h3>{consumerIds ? consumerIds.length : 0} consumers selected</h3>
+				<FormField
+					label={'Field for "Need Size"'}
+					style={fieldStyle}>
+					<FieldPickerSynced
+						globalConfigKey="consumers:need"
+						allowedTypes={[FieldType.NUMBER]}
+						table={consumersTable}
+					/>
+				</FormField>
 
-			<div className="clearfix">
+				<FormField
+					label={'Field for "Delivery Times"'}
+					style={fieldStyle}>
+					<FieldPickerSynced
+						globalConfigKey="consumers:times"
+						allowedTypes={[FieldType.MULTIPLE_RECORD_LINKS]}
+						table={consumersTable}
+					/>
+				</FormField>
+
+				<FormField
+					label={'Field for "Region"'}
+					style={fieldStyle}>
+					<FieldPickerSynced
+						globalConfigKey="consumers:region"
+						allowedTypes={[FieldType.MULTIPLE_RECORD_LINKS]}
+						table={consumersTable}
+					/>
+				</FormField>
+
+				<h3>
+					{consumerIds ? consumerIds.length : 0} consumers selected
+				</h3>
+			</fieldset>
+
+			<fieldset style={{marginBottom: '1em'}}>
+				<legend>Producers schema</legend>
+
 				<FormField
 					label="Producers table"
-					style={{width: '50%', float: 'left'}}>
+					style={{width: '48%', display: 'inline-block', marginRight: '4%'}}>
 					<TablePickerSynced globalConfigKey="producersTableId" />
 				</FormField>
+
 				<FormField
-					label="Producers view"
-					style={{width: '50%', float: 'left'}}>
+					label="Producers view (optional)"
+					style={{width: '48%', display: 'inline-block'}}>
 					<ViewPickerSynced
 						shouldAllowPickingNone={true}
 						globalConfigKey="producersViewId"
 						table={producersTable} />
 				</FormField>
-			</div>
 
-			<h3>{producerIds ? producerIds.length : 0} consumers selected</h3>
-
-			<FormField label="Time zone" description={timezoneDescription}>
-				<Select
-					value="utc"
-					disabled={true}
-					options={[
-						{label: 'UTC', value: 'utc'},
-						{label: 'Local', value:'local'},
-					]}
+				<FormField
+					label={'Field for "Capacity"'}
+					style={fieldStyle}>
+					<FieldPickerSynced
+						globalConfigKey="producers:capacity"
+						allowedTypes={[FieldType.NUMBER]}
+						table={producersTable}
 					/>
-			</FormField>
+				</FormField>
+
+				<FormField
+					label={'Field for "Price"'}
+					style={fieldStyle}>
+					<FieldPickerSynced
+						globalConfigKey="producers:price"
+						allowedTypes={[FieldType.CURRENCY]}
+						table={producersTable}
+					/>
+				</FormField>
+
+				<FormField
+					label={'Field for "Availability"'}
+					style={fieldStyle}>
+					<FieldPickerSynced
+						globalConfigKey="producers:times"
+						allowedTypes={[FieldType.MULTIPLE_RECORD_LINKS]}
+						table={producersTable}
+					/>
+				</FormField>
+
+				<h3>
+					{producerIds ? producerIds.length : 0} consumers selected
+				</h3>
+			</fieldset>
+
+			<fieldset>
+				<legend>Miscellaneous</legend>
+
+				<FormField
+					label="Time zone"
+					description={timezoneDescription}
+					style={fieldStyle}>
+					<Select
+						value="utc"
+						disabled={true}
+						options={[
+							{label: 'UTC', value: 'utc'},
+							{label: 'Local', value:'local'},
+						]}
+						/>
+				</FormField>
+			</fieldset>
 		</Box>
 	);
 }

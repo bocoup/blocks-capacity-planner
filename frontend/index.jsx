@@ -36,38 +36,46 @@ loadCSSFromString(`
  * @param {airtable.Table} deliveriesTable - table describing all available
  *                                           deliveries; this is the table upon
  *                                           which the operation is applied
+ * @param {object} assignmentFields - a mapping of semantic field names to
+ *                                    Airtable Field identifiers
+ * @param {object} consumerFields - a mapping of semantic field names to
+ *                                  Airtable Field identifiers
  */
-const execute = async (operation, consumersTable, deliveriesTable) => {
+const execute = async ({
+	operation, consumersTable, deliveriesTable, assignmentFields, consumerFields
+}) => {
 	if (operation.name === 'create') {
 		// The "deliveries" table has many views which filter according to the
 		// "Region" field. Infer the appropriate value for this field by
 		// querying the "Chapter" field of the new delivery's consumer. This
 		// ensures that newly-created records appear in the relevant views of
 		// the "deliveries" table.
-		const queryResult = consumersTable.selectRecords({fields: ['Chapter']});
-		let chapters;
+		const queryResult = consumersTable.selectRecords({
+			fields: [consumerFields.region]
+		});
+		let region;
 
 		await queryResult.loadDataAsync();
 
 		try {
 			const record = queryResult.getRecordById(operation.consumerId);
-			chapters = record.getCellValue('Chapter');
+			region = record.getCellValue(consumerFields.region);
 		} finally {
 			queryResult.unloadData();
 		}
 
 		deliveriesTable.createRecordAsync({
-			'Delivery Scheduled': operation.date,
-			Hospital: [{id: operation.consumerId}],
-			Restaurant: [{id: operation.producerId}],
-			'Number of Meals': operation.amount,
-			'Region': chapters,
+			[assignmentFields.date]: operation.date,
+			[assignmentFields.consumer]: [{id: operation.consumerId}],
+			[assignmentFields.producer]: [{id: operation.producerId}],
+			[assignmentFields.amount]: operation.amount,
+			[assignmentFields.region]: region,
 		});
 	} else if (operation.name === 'delete') {
 		deliveriesTable.deleteRecordAsync(operation.id);
 	} else if (operation.name === 'update') {
 		deliveriesTable.updateRecordAsync(operation.id, {
-			'Number of Meals': operation.amount
+			[assignmentFields.amount]: operation.amount
 		});
 	}
 };
@@ -87,30 +95,69 @@ function CapacityPlanner() {
 	const producersViewId = globalConfig.get('producersViewId');
 	const producersView = producersTable &&
 		producersTable.getViewByIdIfExists(producersViewId);
+	const assignmentFields = {
+		consumer: globalConfig.get('assignments:consumer'),
+		producer: globalConfig.get('assignments:producer'),
+		amount: globalConfig.get('assignments:amount'),
+		date: globalConfig.get('assignments:date'),
+		region: globalConfig.get('assignments:region'),
+	};
+	const consumerFields = {
+		need: globalConfig.get('consumers:need'),
+		times: globalConfig.get('consumers:times'),
+		region: globalConfig.get('consumers:region'),
+	};
+	const producerFields = {
+		capacity: globalConfig.get('producers:capacity'),
+		price: globalConfig.get('producers:price'),
+		times: globalConfig.get('producers:times'),
+	};
 
 	useSettingsButton(() => setIsShowingSettings(!isShowingSettings));
 
 	const assignmentRecords = useRecords(deliveriesTable, {
-		fields: ['Delivery Scheduled', 'Hospital', 'Restaurant', 'Number of Meals']
+		fields: Object.values(assignmentFields)
 	});
 	const consumerRecords = useRecords(consumersView || consumersTable, {
-		fields: ['Name', 'Delivery Times', 'Number of Meals']
+		fields: Object.values(consumerFields)
 	});
 	const producerRecords = useRecords(producersView || producersTable, {
-		fields: ['Name', 'Shifts', 'Projected Price/Meal', 'Max Meals']
+		fields: Object.values(producerFields)
 	});
 
 	if (isShowingSettings) {
 		return <Settings />;
 	}
 
-	if (!deliveriesTable || !consumersTable || !producersTable) {
+	const hasAllRequired = [
+			deliveriesTable,
+			consumersTable, producersTable,
+			...Object.values(assignmentFields),
+			...Object.values(consumerFields),
+			...Object.values(producerFields),
+		].every((item) => !!item);
+
+	if (!hasAllRequired) {
 		return (
-			<Box padding={2}>
-				<p>This block must be configured before it may be used.</p>
+			<Box
+				position="absolute"
+				top={0}
+				left={0}
+				right={0}
+				bottom={0}
+				display="flex"
+				padding={2}
+				flexDirection="column"
+				alignItems="center"
+				textAlign="center"
+				justifyContent="center">
+				<p>
+					Some of the configuration required by this block has not
+					been provided.
+				</p>
 
 				<Button onClick={() => setIsShowingSettings(true)}>
-					Configure
+					Open the configuration page
 				</Button>
 			</Box>
 		);
@@ -119,13 +166,13 @@ function CapacityPlanner() {
 	const consumers = consumerRecords.map((record) => ({
 		id: record.id,
 		name: record.name,
-		need: record.getCellValue('Number of Meals'),
+		need: record.getCellValue(consumerFields.need),
 		// "Delivery Times" is a linked record. Although
 		// `selectLinkedRecordsFromCell` is technically more appropriate, it
 		// can't be used in a synchronous context. Instead, operate on each
 		// record's name (which is available immediately) to infer the relevant
 		// values.
-		times: (record.getCellValue('Delivery Times') || []).map((record) => {
+		times: (record.getCellValue(consumerFields.times) || []).map((record) => {
 			const [day, time] = record.name.split(/\s*@\s*/);
 			return {day, time};
 		}),
@@ -135,13 +182,13 @@ function CapacityPlanner() {
 	const producers = producerRecords.map((record) => ({
 		id: record.id,
 		name: record.name,
-		capacity: record.getCellValue('Max Meals'),
-		price: record.getCellValue('Projected Price/Meal'),
+		capacity: record.getCellValue(producerFields.capacity),
+		price: record.getCellValue(producerFields.price),
 		// "Shifts" is a linked record. Although `selectLinkedRecordsFromCell`
 		// is technically more appropriate, it can't be used in a synchronous
 		// context. Instead, operate on each record's name (which is available
 		// immediately) to infer the relevant values.
-		times: (record.getCellValue('Shifts') || []).map((record) => {
+		times: (record.getCellValue(producerFields.times) || []).map((record) => {
 			const [day, timeOfDay] = record.name.split(/\s+/);
 			return {day, timeOfDay};
 		}),
@@ -155,10 +202,10 @@ function CapacityPlanner() {
 	const assignments = assignmentRecords
 		.map((record) => ({
 			id: record.id,
-			consumerId: getLinkedId(record, 'Hospital'),
-			producerId: getLinkedId(record, 'Restaurant'),
-			amount: record.getCellValue('Number of Meals'),
-			date: record.getCellValue('Delivery Scheduled'),
+			consumerId: getLinkedId(record, assignmentFields.consumer),
+			producerId: getLinkedId(record, assignmentFields.producer),
+			amount: record.getCellValue(assignmentFields.amount),
+			date: record.getCellValue(assignmentFields.date),
 		}))
 		.filter(({consumerId, producerId}) => {
 			return consumerIds.has(consumerId) && producerIds.has(producerId);
@@ -170,7 +217,13 @@ function CapacityPlanner() {
 		assignments={assignments}
 		onAssign={(operations) => {
 			operations.forEach((operation) => {
-				execute(operation, consumersTable, deliveriesTable);
+				execute({
+					operation,
+					consumersTable,
+					deliveriesTable,
+					assignmentFields,
+					consumerFields,
+				});
 			});
 		}}
 		/>;
