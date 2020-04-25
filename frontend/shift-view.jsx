@@ -185,7 +185,56 @@ export default function ShiftView({shift, producers, consumers, producerStat, on
 				onAssign={assign}
 				producerStat={producerStat} />
 		);
-	});
+	}).filter((row) => !!row);
+
+	let content;
+	if (consumerRows.length === 0) {
+		content = <p>No consumers found for this period.</p>;
+	} else {
+		content = <>
+			<Box style={{
+				position: 'absolute',
+				top: 0,
+				bottom: 0,
+				left: 0,
+				width: '20%',
+				overflowY: 'auto'
+			}}>
+				<AssignmentDropTarget
+					consumerId={null}
+					accept={id}
+					onAssign={assign}
+				>
+					<Heading as="h4" style={{fontSize: '1em'}}>
+						unassigned
+					</Heading>
+
+					<AssignmentList
+						consumerId={null}
+						producers={producers}
+						assignments={nullAssignments}
+						stat={producerStat}
+						type={id}
+						/>
+				</AssignmentDropTarget>
+			</Box>
+
+			<table
+				cellSpacing="0"
+				style={{marginLeft: '20%', width: '80%', paddingLeft: '1em'}}>
+				<thead>
+					<tr>
+						<td>Name</td>
+						<td>Time</td>
+						<td colSpan="3" style={{textAlign: 'center'}}>
+							Fulfillment
+						</td>
+					</tr>
+				</thead>
+				{consumerRows}
+			</table>
+		</>;
+	}
 
 	return (
 		<DndProvider backend={Backend}>
@@ -197,47 +246,7 @@ export default function ShiftView({shift, producers, consumers, producerStat, on
 			</header>
 
 			<Box marginBottom={4} style={{position: 'relative'}}>
-				<Box style={{
-					position: 'absolute',
-					top: 0,
-					bottom: 0,
-					left: 0,
-					width: '20%',
-					overflowY: 'auto'
-				}}>
-					<AssignmentDropTarget
-						consumerId={null}
-						accept={id}
-						onAssign={assign}
-					>
-						<Heading as="h4" style={{fontSize: '1em'}}>
-							unassigned
-						</Heading>
-
-						<AssignmentList
-							consumerId={null}
-							producers={producers}
-							assignments={nullAssignments}
-							stat={producerStat}
-							type={id}
-							/>
-					</AssignmentDropTarget>
-				</Box>
-
-				<table
-					cellSpacing="0"
-					style={{marginLeft: '20%', width: '80%', paddingLeft: '1em'}}>
-					<thead>
-						<tr>
-							<td>Name</td>
-							<td>Time</td>
-							<td colSpan="3" style={{textAlign: 'center'}}>
-								Fulfillment
-							</td>
-						</tr>
-					</thead>
-					{consumerRows}
-				</table>
+				{content}
 			</Box>
 		</DndProvider>
 	);
