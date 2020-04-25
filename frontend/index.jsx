@@ -33,23 +33,24 @@ loadCSSFromString(`
  * @param {airtable.Table} consumersTable - table describing all available
  *                                          consumers; the records in this
  *                                          table will not be modified
- * @param {airtable.Table} deliveriesTable - table describing all available
- *                                           deliveries; this is the table upon
- *                                           which the operation is applied
+ * @param {airtable.Table} assignmentsTable - table describing all available
+ *                                           assignments; this is the table
+ *                                           upon which the operation is
+ *                                           applied
  * @param {object} assignmentFields - a mapping of semantic field names to
  *                                    Airtable Field identifiers
  * @param {object} consumerFields - a mapping of semantic field names to
  *                                  Airtable Field identifiers
  */
 const execute = async ({
-	operation, consumersTable, deliveriesTable, assignmentFields, consumerFields
+	operation, consumersTable, assignmentsTable, assignmentFields, consumerFields
 }) => {
 	if (operation.name === 'create') {
-		// The "deliveries" table has many views which filter according to the
+		// The "assignments" table has many views which filter according to the
 		// "Region" field. Infer the appropriate value for this field by
-		// querying the "Chapter" field of the new delivery's consumer. This
+		// querying the "Chapter" field of the new assignment's consumer. This
 		// ensures that newly-created records appear in the relevant views of
-		// the "deliveries" table.
+		// the "assignments" table.
 		const queryResult = consumersTable.selectRecords({
 			fields: [consumerFields.region]
 		});
@@ -64,7 +65,7 @@ const execute = async ({
 			queryResult.unloadData();
 		}
 
-		deliveriesTable.createRecordAsync({
+		assignmentsTable.createRecordAsync({
 			[assignmentFields.date]: operation.date,
 			[assignmentFields.consumer]: [{id: operation.consumerId}],
 			[assignmentFields.producer]: [{id: operation.producerId}],
@@ -72,9 +73,9 @@ const execute = async ({
 			[assignmentFields.region]: region,
 		});
 	} else if (operation.name === 'delete') {
-		deliveriesTable.deleteRecordAsync(operation.id);
+		assignmentsTable.deleteRecordAsync(operation.id);
 	} else if (operation.name === 'update') {
-		deliveriesTable.updateRecordAsync(operation.id, {
+		assignmentsTable.updateRecordAsync(operation.id, {
 			[assignmentFields.amount]: operation.amount
 		});
 	}
@@ -83,8 +84,8 @@ const execute = async ({
 function CapacityPlanner() {
 	const [isShowingSettings, setIsShowingSettings] = useState(false);
 	const globalConfig = useGlobalConfig();
-	const deliveriesTableId = globalConfig.get('deliveriesTableId');
-	const deliveriesTable = base.getTableByIdIfExists(deliveriesTableId);
+	const assignmentsTableId = globalConfig.get('assignmentsTableId');
+	const assignmentsTable = base.getTableByIdIfExists(assignmentsTableId);
 	const consumersTableId = globalConfig.get('consumersTableId');
 	const consumersTable = base.getTableByIdIfExists(consumersTableId);
 	const consumersViewId = globalConfig.get('consumersViewId');
@@ -115,7 +116,7 @@ function CapacityPlanner() {
 
 	useSettingsButton(() => setIsShowingSettings(!isShowingSettings));
 
-	const assignmentRecords = useRecords(deliveriesTable, {
+	const assignmentRecords = useRecords(assignmentsTable, {
 		fields: Object.values(assignmentFields)
 	});
 	const consumerRecords = useRecords(consumersView || consumersTable, {
@@ -130,7 +131,7 @@ function CapacityPlanner() {
 	}
 
 	const hasAllRequired = [
-			deliveriesTable,
+			assignmentsTable,
 			consumersTable, producersTable,
 			...Object.values(assignmentFields),
 			...Object.values(consumerFields),
@@ -167,11 +168,10 @@ function CapacityPlanner() {
 		id: record.id,
 		name: record.name,
 		need: record.getCellValue(consumerFields.need),
-		// "Delivery Times" is a linked record. Although
-		// `selectLinkedRecordsFromCell` is technically more appropriate, it
-		// can't be used in a synchronous context. Instead, operate on each
-		// record's name (which is available immediately) to infer the relevant
-		// values.
+		// "times" is a linked record. Although `selectLinkedRecordsFromCell`
+		// is technically more appropriate, it can't be used in a synchronous
+		// context. Instead, operate on each record's name (which is available
+		// immediately) to infer the relevant values.
 		times: (record.getCellValue(consumerFields.times) || []).map((record) => {
 			const [day, time] = record.name.split(/\s*@\s*/);
 			return {day, time};
@@ -220,7 +220,7 @@ function CapacityPlanner() {
 				execute({
 					operation,
 					consumersTable,
-					deliveriesTable,
+					assignmentsTable,
 					assignmentFields,
 					consumerFields,
 				});

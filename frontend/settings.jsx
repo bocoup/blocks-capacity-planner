@@ -31,8 +31,8 @@ export default function Settings() {
 	const producersViewId = globalConfig.get('producersViewId');
 	const producersView = producersTable &&
 		producersTable.getViewByIdIfExists(producersViewId);
-	const deliveriesTableId = globalConfig.get('deliveriesTableId');
-	const deliveriesTable = base.getTableByIdIfExists(deliveriesTableId);
+	const assignmentsTableId = globalConfig.get('assignmentsTableId');
+	const assignmentsTable = base.getTableByIdIfExists(assignmentsTableId);
 
 	const consumerIds = useRecordIds(consumersView || consumersTable);
 	const producerIds = useRecordIds(producersView || producersTable);
@@ -44,12 +44,12 @@ export default function Settings() {
 			</h1>
 
 			<fieldset style={{marginBottom: '1em'}}>
-				<legend>Deliveries schema</legend>
+				<legend>Assignments schema</legend>
 
 				<FormField
-					label="Deliveries table"
+					label="Assignments table"
 					style={{width: '48%'}}>
-					<TablePickerSynced globalConfigKey="deliveriesTableId" />
+					<TablePickerSynced globalConfigKey="assignmentsTableId" />
 				</FormField>
 
 				<FormField
@@ -58,7 +58,7 @@ export default function Settings() {
 					<FieldPickerSynced
 						globalConfigKey="assignments:consumer"
 						allowedTypes={[FieldType.MULTIPLE_RECORD_LINKS]}
-						table={deliveriesTable}
+						table={assignmentsTable}
 					/>
 				</FormField>
 
@@ -68,27 +68,27 @@ export default function Settings() {
 					<FieldPickerSynced
 						globalConfigKey="assignments:producer"
 						allowedTypes={[FieldType.MULTIPLE_RECORD_LINKS]}
-						table={deliveriesTable}
+						table={assignmentsTable}
 					/>
 				</FormField>
 
 				<FormField
-					label={'Field for "Delivery Size"'}
+					label={'Field for "Assignment Size"'}
 					style={fieldStyle}>
 					<FieldPickerSynced
 						globalConfigKey="assignments:amount"
 						allowedTypes={[FieldType.NUMBER]}
-						table={deliveriesTable}
+						table={assignmentsTable}
 					/>
 				</FormField>
 
 				<FormField
-					label={'Field for "Delivery Time"'}
+					label={'Field for "Assignment Time"'}
 					style={fieldStyle}>
 					<FieldPickerSynced
 						globalConfigKey="assignments:date"
 						allowedTypes={[FieldType.DATE_TIME]}
-						table={deliveriesTable}
+						table={assignmentsTable}
 					/>
 				</FormField>
 
@@ -98,7 +98,7 @@ export default function Settings() {
 					<FieldPickerSynced
 						globalConfigKey="assignments:region"
 						allowedTypes={[FieldType.MULTIPLE_RECORD_LINKS]}
-						table={deliveriesTable}
+						table={assignmentsTable}
 					/>
 				</FormField>
 			</fieldset>
@@ -132,7 +132,7 @@ export default function Settings() {
 				</FormField>
 
 				<FormField
-					label={'Field for "Delivery Times"'}
+					label={'Field for "Consumer Times"'}
 					style={fieldStyle}>
 					<FieldPickerSynced
 						globalConfigKey="consumers:times"
@@ -205,7 +205,7 @@ export default function Settings() {
 				</FormField>
 
 				<h3>
-					{producerIds ? producerIds.length : 0} consumers selected
+					{producerIds ? producerIds.length : 0} producers selected
 				</h3>
 			</fieldset>
 
