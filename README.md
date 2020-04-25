@@ -38,6 +38,10 @@ This application interprets all dates in terms of Coordinated Universal Time
 4. From the root of your new block, run `block run`.
 5. Paste the uri that it gives you into the 'edit block' input back on airtable.com.
 
+## Conduct
+
+All contributors are expected to adhere to the project's code of conduct,
+available in the file named `CODE_OF_CONDUCT.md`.
 
 ## License
 

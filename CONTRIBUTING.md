@@ -13,3 +13,8 @@ on the kind of change you are making:
 
 Following this convention helps use respond to high-priority issues quickly,
 and it makes it easier to schedule more substantial releases.
+
+## Conduct
+
+All contributors are expected to adhere to the project's code of conduct,
+available in the file named `CODE_OF_CONDUCT.md`.
