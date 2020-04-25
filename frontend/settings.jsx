@@ -19,7 +19,7 @@ const fieldStyle = {
 	marginRight: '2em',
 };
 
-export default function Settings() {
+export default function Settings({consumerName, producerName, assignmentName}) {
 	const globalConfig = useGlobalConfig();
 	const consumersTableId = globalConfig.get('consumersTableId');
 	const consumersTable = base.getTableByIdIfExists(consumersTableId);
@@ -44,16 +44,16 @@ export default function Settings() {
 			</h1>
 
 			<fieldset style={{marginBottom: '1em'}}>
-				<legend>Assignments schema</legend>
+				<legend>{assignmentName} schema</legend>
 
 				<FormField
-					label="Assignments table"
+					label="Table"
 					style={{width: '48%'}}>
 					<TablePickerSynced globalConfigKey="assignmentsTableId" />
 				</FormField>
 
 				<FormField
-					label={'Field for "Consumers"'}
+					label={`Field for "${consumerName}"`}
 					style={fieldStyle}>
 					<FieldPickerSynced
 						globalConfigKey="assignments:consumer"
@@ -63,7 +63,7 @@ export default function Settings() {
 				</FormField>
 
 				<FormField
-					label={'Field for "Producers"'}
+					label={`Field for "${producerName}"`}
 					style={fieldStyle}>
 					<FieldPickerSynced
 						globalConfigKey="assignments:producer"
@@ -73,7 +73,7 @@ export default function Settings() {
 				</FormField>
 
 				<FormField
-					label={'Field for "Assignment Size"'}
+					label={'Field for "Size"'}
 					style={fieldStyle}>
 					<FieldPickerSynced
 						globalConfigKey="assignments:amount"
@@ -83,7 +83,7 @@ export default function Settings() {
 				</FormField>
 
 				<FormField
-					label={'Field for "Assignment Time"'}
+					label={'Field for "Time"'}
 					style={fieldStyle}>
 					<FieldPickerSynced
 						globalConfigKey="assignments:date"
@@ -104,16 +104,16 @@ export default function Settings() {
 			</fieldset>
 
 			<fieldset style={{marginBottom: '1em'}}>
-				<legend>Consumers schema</legend>
+				<legend>{consumerName} schema</legend>
 
 				<FormField
-					label="Consumers table"
+					label="Table"
 					style={{width: '48%', display: 'inline-block', marginRight: '4%'}}>
 					<TablePickerSynced globalConfigKey="consumersTableId" />
 				</FormField>
 
 				<FormField
-					label="Consumers view (optional)"
+					label="View (optional)"
 					style={{width: '48%', display: 'inline-block'}}>
 					<ViewPickerSynced
 						shouldAllowPickingNone={true}
@@ -132,7 +132,7 @@ export default function Settings() {
 				</FormField>
 
 				<FormField
-					label={'Field for "Consumer Times"'}
+					label={'Field for "Times"'}
 					style={fieldStyle}>
 					<FieldPickerSynced
 						globalConfigKey="consumers:times"
@@ -152,21 +152,21 @@ export default function Settings() {
 				</FormField>
 
 				<h3>
-					{consumerIds ? consumerIds.length : 0} consumers selected
+					{consumerIds ? consumerIds.length : 0} {consumerName} selected
 				</h3>
 			</fieldset>
 
 			<fieldset style={{marginBottom: '1em'}}>
-				<legend>Producers schema</legend>
+				<legend>{producerName} schema</legend>
 
 				<FormField
-					label="Producers table"
+					label="Table"
 					style={{width: '48%', display: 'inline-block', marginRight: '4%'}}>
 					<TablePickerSynced globalConfigKey="producersTableId" />
 				</FormField>
 
 				<FormField
-					label="Producers view (optional)"
+					label="View (optional)"
 					style={{width: '48%', display: 'inline-block'}}>
 					<ViewPickerSynced
 						shouldAllowPickingNone={true}
@@ -205,7 +205,7 @@ export default function Settings() {
 				</FormField>
 
 				<h3>
-					{producerIds ? producerIds.length : 0} producers selected
+					{producerIds ? producerIds.length : 0} {producerName} selected
 				</h3>
 			</fieldset>
 

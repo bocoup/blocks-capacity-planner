@@ -127,7 +127,10 @@ function CapacityPlanner() {
 	});
 
 	if (isShowingSettings) {
-		return <Settings />;
+		return <Settings
+			consumerName="Hospitals"
+			producerName="Restaurants"
+			assignmentName="Deliveries" />;
 	}
 
 	const hasAllRequired = [
