@@ -191,62 +191,72 @@ export default function ShiftView({shift, producers, consumers, producerStat, on
 	if (consumerRows.length === 0) {
 		content = <p>No consumers found for this period.</p>;
 	} else {
-		content = <>
-			<Box style={{
-				position: 'absolute',
-				top: 0,
-				bottom: 0,
-				left: 0,
-				width: '20%',
-				overflowY: 'auto'
-			}}>
-				<AssignmentDropTarget
-					consumerId={null}
-					accept={id}
-					onAssign={assign}
-				>
-					<Heading as="h4" style={{fontSize: '1em'}}>
-						unassigned
-					</Heading>
-
-					<AssignmentList
+		content = (
+			<div style={{height: '100%', overflowY: 'auto'}}>
+				<Box style={{
+					position: 'absolute',
+					top: 0,
+					bottom: 0,
+					left: 0,
+					width: '20%',
+					overflowY: 'auto'
+				}}>
+					<AssignmentDropTarget
 						consumerId={null}
-						producers={producers}
-						assignments={nullAssignments}
-						stat={producerStat}
-						type={id}
-						/>
-				</AssignmentDropTarget>
-			</Box>
+						accept={id}
+						onAssign={assign}
+					>
+						<Heading as="h4" style={{fontSize: '1em'}}>
+							unassigned
+						</Heading>
 
-			<table
-				cellSpacing="0"
-				style={{marginLeft: '20%', width: '80%', paddingLeft: '1em'}}>
-				<thead>
-					<tr>
-						<td>Name</td>
-						<td>Time</td>
-						<td colSpan="3" style={{textAlign: 'center'}}>
-							Fulfillment
-						</td>
-					</tr>
-				</thead>
-				{consumerRows}
-			</table>
-		</>;
+						<AssignmentList
+							consumerId={null}
+							producers={producers}
+							assignments={nullAssignments}
+							stat={producerStat}
+							type={id}
+							/>
+					</AssignmentDropTarget>
+				</Box>
+
+				<table
+					cellSpacing="0"
+					style={{
+						marginLeft: '20%',
+						width: '80%',
+						paddingLeft: '1em',
+						height: '100%',
+						overflowY: 'auto'
+					}}>
+					<thead>
+						<tr>
+							<td>Name</td>
+							<td>Time</td>
+							<td colSpan="3" style={{textAlign: 'center'}}>
+								Fulfillment
+							</td>
+						</tr>
+					</thead>
+					{consumerRows}
+				</table>
+			</div>
+		);
 	}
 
 	return (
 		<DndProvider backend={Backend}>
-			<header className="clearfix">
-				<Heading as="h3" style={{float: 'left'}}>
-					{shift.day} {shift.timeOfDay}
-				</Heading>
-				<span style={{float: 'right'}}>{shift.date}</span>
-			</header>
+			<Box style={{height: '90%', display: 'flex', flexDirection: 'column'}}>
+				<header className="clearfix">
+					<Heading as="h3" style={{float: 'left'}}>
+						{shift.day} {shift.timeOfDay}
+					</Heading>
+					<span style={{float: 'right'}}>{shift.date}</span>
+				</header>
 
-			<Box marginBottom={4} style={{position: 'relative'}}>
-				{content}
+				<Box marginBottom={4} style={{flexGrow: 1, position: 'relative', overflowY: 'auto'}}>
+					{content}
+				</Box>
 			</Box>
 		</DndProvider>
 	);
