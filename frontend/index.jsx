@@ -52,7 +52,7 @@ const execute = async ({
 		// ensures that newly-created records appear in the relevant views of
 		// the "assignments" table.
 		const queryResult = consumersTable.selectRecords({
-			fields: [consumerFields.chapter]
+			fields: [consumerFields.region]
 		});
 		let region;
 
