@@ -112,6 +112,7 @@ function CapacityPlanner() {
 		capacity: globalConfig.get('producers:capacity'),
 		price: globalConfig.get('producers:price'),
 		times: globalConfig.get('producers:times'),
+		descriptor: globalConfig.get('producers:descriptor'),
 	};
 
 	useSettingsButton(() => setIsShowingSettings(!isShowingSettings));
@@ -187,6 +188,7 @@ function CapacityPlanner() {
 		name: record.name,
 		capacity: record.getCellValue(producerFields.capacity),
 		price: record.getCellValue(producerFields.price),
+                descriptor: record.getCellValue(producerFields.descriptor),
 		// "Shifts" is a linked record. Although `selectLinkedRecordsFromCell`
 		// is technically more appropriate, it can't be used in a synchronous
 		// context. Instead, operate on each record's name (which is available

@@ -204,6 +204,16 @@ export default function Settings({consumerName, producerName, assignmentName}) {
 					/>
 				</FormField>
 
+				<FormField
+					label={'Field for "Descriptor"'}
+					style={fieldStyle}>
+					<FieldPickerSynced
+						globalConfigKey="producers:descriptor"
+						allowedTypes={[FieldType.SINGLE_LINE_TEXT]}
+						table={producersTable}
+					/>
+				</FormField>
+
 				<h3>
 					{producerIds ? producerIds.length : 0} {producerName} selected
 				</h3>

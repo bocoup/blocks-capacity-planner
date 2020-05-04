@@ -29,7 +29,7 @@ function AssignmentDropTarget({as, children, consumerId, onAssign, accept, ...re
 	);
 }
 
-function AssignmentList({consumerId, style, producers, assignments, stat, type}) {
+function AssignmentList({consumerId, style, producers, assignments, display, type}) {
 	const items = assignments
 		.filter((assignment) => assignment.consumerId === consumerId)
 		.map((assignment) => (
@@ -38,7 +38,7 @@ function AssignmentList({consumerId, style, producers, assignments, stat, type})
 				assignment={assignment}
 				producer={producers.find(({id}) => id === assignment.producerId)}
 				type={type}
-				stat={stat} />));
+				display={display} />));
 
 	return (
 		<ul style={{listStyleType: 'none', margin: 0, padding: 0, ...style}}>
@@ -47,7 +47,7 @@ function AssignmentList({consumerId, style, producers, assignments, stat, type})
 	);
 }
 
-function AssignmentItem({producer, assignment, type, stat}) {
+function AssignmentItem({producer, assignment, type, display}) {
 	const [, drag] = useDrag({
 		item: { id: assignment.id, type }
 	});
@@ -65,20 +65,26 @@ function AssignmentItem({producer, assignment, type, stat}) {
 				backgroundColor: '#fff'
 			}}
 			>
-			<span style={{float: 'left'}}>{producer.name} ({assignment.amount}/{producer.capacity})</span>
-			{stat ?
+			<span style={{float: 'left'}}>
+                          {producer.name} ({assignment.amount}/{producer.capacity})
+                          {display == 'descriptor' ? <span style={{color: 'gray', marginLeft: '0.5em'}}>{producer.descriptor}</span> : '' }
+                        </span>
+
+
+			{display == 'price' || display == 'capacity' ?
 				<Rating
 					style={{float: 'right', marginLeft: '1em'}}
-					value={producer[stat]}
-					min={producer[`min${stat}`]}
-					max={producer[`max${stat}`]} />
+					value={producer[display]}
+					min={producer[`min${display}`]}
+					max={producer[`max${display}`]} />
 				: ''}
+
 		</li>
 	);
 }
 
 function ConsumerRow({
-	consumer, time, producers, assignments, onAssign, accept, producerStat
+	consumer, time, producers, assignments, onAssign, accept, producerDisplay
 }) {
 	const provided = assignments.reduce((total, assignment) => {
 		return total + assignment.amount;
@@ -137,7 +143,7 @@ function ConsumerRow({
 						consumerId={consumer.id}
 						producers={producers}
 						assignments={assignments}
-						stat={producerStat}
+						display={producerDisplay}
 						type={accept}
 					/>
 				</td>
@@ -147,7 +153,7 @@ function ConsumerRow({
 	);
 }
 
-export default function ShiftView({shift, producers, consumers, producerStat, onAssign}) {
+export default function ShiftView({shift, producers, consumers, producerDisplay, onAssign}) {
 	const id = `${shift.date} ${shift.timeOfDay}`;
 	const nullAssignments = buildNullAssignments(
 		shift.date, shift.timeOfDay, producers, shift.assignments
@@ -183,7 +189,7 @@ export default function ShiftView({shift, producers, consumers, producerStat, on
 				assignments={shift.assignments.filter(({consumerId}) => consumerId === consumer.id)}
 				accept={id}
 				onAssign={assign}
-				producerStat={producerStat} />
+				producerDisplay={producerDisplay} />
 		);
 	}).filter((row) => !!row);
 
@@ -213,7 +219,7 @@ export default function ShiftView({shift, producers, consumers, producerStat, on
 						consumerId={null}
 						producers={producers}
 						assignments={nullAssignments}
-						stat={producerStat}
+						display={producerDisplay}
 						type={id}
 						/>
 				</AssignmentDropTarget>
