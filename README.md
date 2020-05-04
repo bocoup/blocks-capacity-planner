@@ -31,12 +31,15 @@ This application interprets all dates in terms of Coordinated Universal Time
 
 ## How to run this block
 
-1. Create a new base using the
+1. [Duplicate](https://support.airtable.com/hc/en-us/articles/202584549-Duplicating-an-existing-base) the
    [Capacity Planning Example Base](https://airtable.com/invite/l?inviteId=inv4VdlJpmw7Jiwv0&inviteToken=1a104ad9356cd575e76e2437b670c4c8b1a51fa7bf75114091f1bd4534c5052d).
 2. Create a new custom block your new base.
-3. Clone this repository and install the block CLI
-4. From the root of your new block, run `block run`.
-5. Paste the uri that it gives you into the 'edit block' input back on airtable.com.
+3. Clone this repository and install the block CLI.
+4. Instead of running `block init` add run [`block remote-add <KEY_FROM_INIT> <YOUR_REMOTE_NAME>`](https://airtable.com/developers/blocks/guides/run-in-multiple-bases#Use%20remotes%20to%20run%20and%20release%20your%20block)
+   to be able to develop this block on your copy of the example base.
+5. From the root of your new block, run `block run --remote <YOUR_REMOTE_NAME>`.
+6. Paste the uri that it gives you into the 'edit block' input back on airtable.com.
+
 
 ## Conduct
 
