@@ -12,6 +12,7 @@ import buildShifts from './build-shifts';
 import priceAssignments from './price-assignments';
 import Constraints from './constraints';
 import ShiftView from './shift-view';
+import assignmentClear from './assignment-clear';
 
 const containerStyle = {
 	position: 'absolute',
@@ -111,6 +112,13 @@ export default function Chooser({producers, consumers, assignments, onAssign}) {
 						<Select options={producerDisplayOptions} value={producerDisplay} onChange={setProducerDisplay} />
 					</FormField>
 				</Box>
+
+				<Button
+					marginRight={3}
+					onClick={() => onAssign(assignmentClear({assignments, startDate, endDate}))}
+					>
+                                        Clear Schedule
+				</Button>
 
 				<Button
 					marginRight={3}
