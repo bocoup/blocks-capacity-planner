@@ -233,7 +233,7 @@ export default function Settings({consumerName, producerName, assignmentName}) {
 							{label: 'UTC', value: 'utc'},
 							{label: 'Local', value:'local'},
 						]}
-						/>
+					/>
 				</FormField>
 			</fieldset>
 		</Box>

@@ -34,7 +34,7 @@ export default function assignmentInstructions({
 			otherAssignment.producerId === assignment.producerId &&
 			otherAssignment.date === date &&
 			otherAssignment.id !== assignment.id;
-		});
+	});
 
 	if (existing) {
 		const amount = Math.min(

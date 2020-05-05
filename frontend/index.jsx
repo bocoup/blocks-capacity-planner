@@ -135,12 +135,12 @@ function CapacityPlanner() {
 	}
 
 	const hasAllRequired = [
-			assignmentsTable,
-			consumersTable, producersTable,
-			...Object.values(assignmentFields),
-			...Object.values(consumerFields),
-			...Object.values(producerFields),
-		].every((item) => !!item);
+		assignmentsTable,
+		consumersTable, producersTable,
+		...Object.values(assignmentFields),
+		...Object.values(consumerFields),
+		...Object.values(producerFields),
+	].every((item) => !!item);
 
 	if (!hasAllRequired) {
 		return (
@@ -188,7 +188,7 @@ function CapacityPlanner() {
 		name: record.name,
 		capacity: record.getCellValue(producerFields.capacity),
 		price: record.getCellValue(producerFields.price),
-                descriptor: record.getCellValue(producerFields.descriptor),
+		descriptor: record.getCellValue(producerFields.descriptor),
 		// "Shifts" is a linked record. Although `selectLinkedRecordsFromCell`
 		// is technically more appropriate, it can't be used in a synchronous
 		// context. Instead, operate on each record's name (which is available
@@ -231,7 +231,7 @@ function CapacityPlanner() {
 				});
 			});
 		}}
-		/>;
+	/>;
 }
 
 initializeBlock(() => <CapacityPlanner />);

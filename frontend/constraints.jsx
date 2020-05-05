@@ -29,7 +29,7 @@ const expandDate = (date) => date + 'T00:00:00.000Z';
 export default function Constraints({
 	onClose, startDate, onStartDateChange, endDate, onEndDateChange, budget,
 	onBudgetChange
-	}) {
+}) {
 	return (
 		<Dialog onClose={onClose}>
 			<Dialog.CloseButton />
@@ -40,7 +40,7 @@ export default function Constraints({
 					type="date"
 					value={trimDate(startDate)}
 					onChange={(event) => onStartDateChange(expandDate(event.target.value))}
-					/>
+				/>
 			</FormField>
 
 			<FormField label="End date" width="50%" paddingLeft={1} style={{float: 'left'}}>
@@ -48,7 +48,7 @@ export default function Constraints({
 					type="date"
 					value={trimDate(endDate)}
 					onChange={(event) => onEndDateChange(expandDate(event.target.value))}
-					/>
+				/>
 			</FormField>
 
 			<FormField label="Budget">
@@ -61,7 +61,7 @@ export default function Constraints({
 						onChange={(event) => {
 							onBudgetChange(parseFloat(event.target.value));
 						}}
-						/>
+					/>
 				</div>
 			</FormField>
 		</Dialog>

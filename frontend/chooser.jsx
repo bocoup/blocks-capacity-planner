@@ -115,7 +115,7 @@ export default function Chooser({producers, consumers, assignments, onAssign}) {
 				<Button
 					marginRight={3}
 					onClick={() => setShowingConstraints(true)}
-					>
+				>
 					Schedule constraints
 				</Button>
 

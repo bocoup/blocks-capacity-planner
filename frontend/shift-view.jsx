@@ -64,11 +64,11 @@ function AssignmentItem({producer, assignment, type, display}) {
 				margin: '0.3em 0',
 				backgroundColor: '#fff'
 			}}
-			>
+		>
 			<span style={{float: 'left'}}>
-                          {producer.name} ({assignment.amount}/{producer.capacity})
-                          {display == 'descriptor' ? <span style={{color: 'gray', marginLeft: '0.5em'}}>{producer.descriptor}</span> : '' }
-                        </span>
+				{producer.name} ({assignment.amount}/{producer.capacity})
+				{display == 'descriptor' ? <span style={{color: 'gray', marginLeft: '0.5em'}}>{producer.descriptor}</span> : '' }
+			</span>
 
 
 			{display == 'price' || display == 'capacity' ?
@@ -129,7 +129,7 @@ function ConsumerRow({
 							height="1em"
 							progress={fulfillment}
 							barColor="#888"
-							/>
+						/>
 					</Box>
 				</td>
 				<td style={{padding: '0.3em 0.3em 0 0'}}>
@@ -221,7 +221,7 @@ export default function ShiftView({shift, producers, consumers, producerDisplay,
 						assignments={nullAssignments}
 						display={producerDisplay}
 						type={id}
-						/>
+					/>
 				</AssignmentDropTarget>
 			</Box>
 
