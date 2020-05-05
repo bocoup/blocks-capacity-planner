@@ -38,10 +38,11 @@ const sortOptions = [
 	{value: 'price', label: 'Price'}
 ];
 
-const producerStats = [
+const producerDisplayOptions = [
 	{value: null, label: 'none'},
 	{value: 'capacity', label: 'Capacity'},
-	{value: 'price', label: 'Price'}
+	{value: 'price', label: 'Price'},
+	{value: 'descriptor', label: 'Descriptor'}
 ];
 
 export default function Chooser({producers, consumers, assignments, onAssign}) {
@@ -50,7 +51,7 @@ export default function Chooser({producers, consumers, assignments, onAssign}) {
 	producers = annotateExtremes(producers, 'price');
 
 	const [sort, setSort] = useState('name');
-	const [producerStat, setProducerStat] = useState(null);
+	const [producerDisplay, setProducerDisplay] = useState(null);
 	const [budget, setBudget] = useState(10 * 1000);
 	const [startDate, setStartDate] = useState(
 		() => moment().set('day', 0).startOf('day').utc().startOf('day').add(1, 'week').format()
@@ -93,7 +94,7 @@ export default function Chooser({producers, consumers, assignments, onAssign}) {
 						shift={shift}
 						consumers={consumers}
 						producers={producers}
-						producerStat={producerStat}
+						producerDisplay={producerDisplay}
 						onAssign={onAssign} />
 				))}
 			</Box>
@@ -106,8 +107,8 @@ export default function Chooser({producers, consumers, assignments, onAssign}) {
 				</Box>
 
 				<Box paddingRight={3}>
-					<FormField label="Producer statistic">
-						<Select options={producerStats} value={producerStat} onChange={setProducerStat} />
+					<FormField label="Producer display">
+						<Select options={producerDisplayOptions} value={producerDisplay} onChange={setProducerDisplay} />
 					</FormField>
 				</Box>
 
