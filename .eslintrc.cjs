@@ -17,7 +17,7 @@ module.exports = {
     },
     plugins: ['react', 'react-hooks'],
     rules: {
-        'indent': ['error', 'tab'],
+        'indent': ['error', 4],
         'react/prop-types': 0,
         'react-hooks/rules-of-hooks': 'error',
         'react-hooks/exhaustive-deps': 'warn',

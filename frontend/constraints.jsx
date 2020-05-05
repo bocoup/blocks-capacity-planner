@@ -1,9 +1,9 @@
 import React from 'react';
 import {
-	Dialog,
-	FormField,
-	Heading,
-	Input,
+    Dialog,
+    FormField,
+    Heading,
+    Input,
 } from '@airtable/blocks/ui';
 
 /**
@@ -27,43 +27,43 @@ const trimDate = (date) => date.replace(/T.*$/, '');
 const expandDate = (date) => date + 'T00:00:00.000Z';
 
 export default function Constraints({
-	onClose, startDate, onStartDateChange, endDate, onEndDateChange, budget,
-	onBudgetChange
+    onClose, startDate, onStartDateChange, endDate, onEndDateChange, budget,
+    onBudgetChange
 }) {
-	return (
-		<Dialog onClose={onClose}>
-			<Dialog.CloseButton />
-			<Heading as="h3">Schedule constraints</Heading>
+    return (
+        <Dialog onClose={onClose}>
+            <Dialog.CloseButton />
+            <Heading as="h3">Schedule constraints</Heading>
 
-			<FormField label="Start date" width="50%" paddingRight={1} style={{float: 'left'}}>
-				<Input
-					type="date"
-					value={trimDate(startDate)}
-					onChange={(event) => onStartDateChange(expandDate(event.target.value))}
-				/>
-			</FormField>
+            <FormField label="Start date" width="50%" paddingRight={1} style={{float: 'left'}}>
+                <Input
+                    type="date"
+                    value={trimDate(startDate)}
+                    onChange={(event) => onStartDateChange(expandDate(event.target.value))}
+                />
+            </FormField>
 
-			<FormField label="End date" width="50%" paddingLeft={1} style={{float: 'left'}}>
-				<Input
-					type="date"
-					value={trimDate(endDate)}
-					onChange={(event) => onEndDateChange(expandDate(event.target.value))}
-				/>
-			</FormField>
+            <FormField label="End date" width="50%" paddingLeft={1} style={{float: 'left'}}>
+                <Input
+                    type="date"
+                    value={trimDate(endDate)}
+                    onChange={(event) => onEndDateChange(expandDate(event.target.value))}
+                />
+            </FormField>
 
-			<FormField label="Budget">
-				<div style={{display: 'block'}}>
+            <FormField label="Budget">
+                <div style={{display: 'block'}}>
 					$<Input
-						type="number"
-						min="0"
-						style={{width: 'auto'}}
-						value={String(budget)}
-						onChange={(event) => {
-							onBudgetChange(parseFloat(event.target.value));
-						}}
-					/>
-				</div>
-			</FormField>
-		</Dialog>
-	);
+                        type="number"
+                        min="0"
+                        style={{width: 'auto'}}
+                        value={String(budget)}
+                        onChange={(event) => {
+                            onBudgetChange(parseFloat(event.target.value));
+                        }}
+                    />
+                </div>
+            </FormField>
+        </Dialog>
+    );
 }
