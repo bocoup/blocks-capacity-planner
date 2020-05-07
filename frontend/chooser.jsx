@@ -12,7 +12,7 @@ import buildShifts from './build-shifts';
 import priceAssignments from './price-assignments';
 import Constraints from './constraints';
 import ShiftView from './shift-view';
-import assignmentClear from './assignment-clear';
+import assignmentsCopy from './assignments-copy';
 
 const containerStyle = {
 	position: 'absolute',
@@ -74,6 +74,13 @@ export default function Chooser({producers, consumers, assignments, onAssign}) {
 		[startDate, endDate, assignments]
 	);
 
+        const isCopyDisabled = assignments
+            .filter((assignment) => {
+                return assignment.date >= startDate && assignment.date <= endDate
+            }).length > 0
+
+        const copyAssignments = () => onAssign(assignmentsCopy({assignments, startDate, endDate}))
+
 	const constraints = isShowingConstraints ?
 		<Constraints
 			onClose={() => setShowingConstraints(false)}
@@ -115,9 +122,10 @@ export default function Chooser({producers, consumers, assignments, onAssign}) {
 
 				<Button
 					marginRight={3}
-					onClick={() => onAssign(assignmentClear({assignments, startDate, endDate}))}
+                                        disabled={isCopyDisabled}
+					onClick={copyAssignments}
 					>
-                                        Clear Schedule
+                                        Copy Previous Schedule
 				</Button>
 
 				<Button
