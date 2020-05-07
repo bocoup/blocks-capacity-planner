@@ -2,8 +2,10 @@ module.exports = {
     env: {
         browser: true,
         es6: true,
+        mocha: true,
     },
-    extends: ['eslint:recommended', 'plugin:react/recommended'],
+    extends: ['eslint:recommended', 'plugin:react/recommended', "plugin:mocha/recommended"
+    ],
     globals: {
         Atomics: 'readonly',
         SharedArrayBuffer: 'readonly',
@@ -20,6 +22,7 @@ module.exports = {
         'react/prop-types': 0,
         'react-hooks/rules-of-hooks': 'error',
         'react-hooks/exhaustive-deps': 'warn',
+        'mocha/no-mocha-arrows': 0
     },
     settings: {
         react: {
