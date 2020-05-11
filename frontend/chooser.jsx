@@ -4,6 +4,7 @@ import {
 	FormField,
 	ProgressBar,
 	Select,
+        Tooltip,
 } from '@airtable/blocks/ui';
 import React, {useMemo, useState} from 'react';
 import moment from 'moment';
@@ -124,13 +125,21 @@ export default function Chooser({producers, consumers, assignments, onBulkAssign
 					</FormField>
 				</Box>
 
-				<Button
-					marginRight={3}
-                                        disabled={isCopyDisabled}
-					onClick={copyAssignments}
-					>
-                                        Copy Previous Schedule
-				</Button>
+                                <Tooltip
+                                        content={areAssignmentsPresentWithinConstraints ? "To enable remove assignments from current schedule." : (areConstraintsGreaterThanAWeek ? "To enable reduce scheduled constraints to a week." : '')}
+
+                                >
+                                        {/* This extra div is needed because otherwise the Tooltip isn't shown when the Button is disabled. However, adding it throws a warning. */}
+                                        <div>
+                                                <Button
+                                                        marginRight={3}
+                                                        disabled={isCopyDisabled}
+                                                        onClick={copyAssignments}
+                                                        >
+                                                        Copy Previous Schedule
+                                                </Button>
+                                        </div>
+                                </Tooltip>
 
 				<Button
 					marginRight={3}
