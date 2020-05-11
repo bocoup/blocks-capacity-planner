@@ -74,10 +74,14 @@ export default function Chooser({producers, consumers, assignments, onBulkAssign
 		[startDate, endDate, assignments]
 	);
 
-        const isCopyDisabled = assignments
+        const areAssignmentsPresentWithinConstraints = assignments
             .filter((assignment) => {
                 return assignment.date >= startDate && assignment.date <= endDate
-            }).length > 0
+            }).length > 0;
+
+        const areConstraintsGreaterThanAWeek = moment.utc(startDate).add(7, 'days') < moment.utc(endDate);
+
+        const isCopyDisabled = areAssignmentsPresentWithinConstraints || areConstraintsGreaterThanAWeek;
 
         const copyAssignments = () => onBulkAssign(assignmentsCopy({assignments, startDate, endDate}))
 
