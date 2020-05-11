@@ -216,10 +216,39 @@ function CapacityPlanner() {
 			return consumerIds.has(consumerId) && producerIds.has(producerId);
 		});
 
+	const bulkCreateAssignments = async({ assignments }) => {
+          const records = assignments.map((assignment) =>
+            {
+              return {
+                fields: {
+                  [assignmentFields.date]: assignment.date,
+                  [assignmentFields.consumer]: [{id: assignment.consumerId}],
+                  [assignmentFields.producer]: [{id: assignment.producerId}],
+                  [assignmentFields.amount]: assignment.amount,
+                  [assignmentFields.region]: assignment.region,
+                }
+              }
+            });
+
+            let i = 0;
+            const BATCH_SIZE = 50;
+
+            while (i < records.length) {
+		const createBatch = records.slice(i, i + BATCH_SIZE);
+		// await is used to wait for the create to finish saving to Airtable
+		// servers before continuing. This means we'll stay under the rate
+		// limit for writes.
+		await assignmentsTable.createRecordsAsync(createBatch);
+		i += BATCH_SIZE;
+            }
+	};
+
+
 	return <Chooser
 		consumers={consumers}
 		producers={producers}
 		assignments={assignments}
+		onBulkAssign={(assignments) => bulkCreateAssignments({ assignments })}
 		onAssign={(operations) => {
 			operations.forEach((operation) => {
 				execute({

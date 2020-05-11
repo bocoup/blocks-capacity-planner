@@ -2,31 +2,28 @@ import moment from 'moment';
 
 export default function assignmentsCopy({ assignments, startDate, endDate }) {
 
-  const operations = [];
+  const assignmentToCreate = [];
   const start = moment.utc(startDate);
-  const end = moment.utc(endDate);
 
   assignments
     .filter((assignment) => {
       return assignment.date >= start.subtract(7, 'days').format() &&
-        assignment.date <= startDate
+        assignment.date < startDate
     })
     .forEach((assignment) => {
-      let date = moment.utc(assignment.date).add(7, 'days');
+        const date = moment.utc(assignment.date).add(7, 'days').format();
 
-      while (date <= end) {
-        operations.push({
-          name: 'create',
-          consumerId: assignment.consumerId,
-          producerId: assignment.producerId,
-          amount: assignment.amount,
-          date: date.format(),
-        });
-
-        date = date.add(7, 'days');
-      }
+        if (date < endDate) {
+          assignmentToCreate.push({
+            consumerId: assignment.consumerId,
+            producerId: assignment.producerId,
+            region: assignment.region,
+            amount: assignment.amount,
+            date: date
+          });
+        }
     });
 
-  return operations;
+  return assignmentToCreate;
 }
 

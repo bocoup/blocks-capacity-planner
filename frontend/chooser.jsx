@@ -46,7 +46,7 @@ const producerDisplayOptions = [
 	{value: 'descriptor', label: 'Descriptor'}
 ];
 
-export default function Chooser({producers, consumers, assignments, onAssign}) {
+export default function Chooser({producers, consumers, assignments, onBulkAssign, onAssign}) {
 	consumers = annotateExtremes(consumers, 'need');
 	producers = annotateExtremes(producers, 'capacity');
 	producers = annotateExtremes(producers, 'price');
@@ -79,7 +79,7 @@ export default function Chooser({producers, consumers, assignments, onAssign}) {
                 return assignment.date >= startDate && assignment.date <= endDate
             }).length > 0
 
-        const copyAssignments = () => onAssign(assignmentsCopy({assignments, startDate, endDate}))
+        const copyAssignments = () => onBulkAssign(assignmentsCopy({assignments, startDate, endDate}))
 
 	const constraints = isShowingConstraints ?
 		<Constraints

@@ -3,44 +3,38 @@ import assert from 'assert';
 import assignmentsCopy from '../frontend/assignments-copy.js';
 
 suite('assignmentsCopy', () => {
-	test('one matching assignment - one week range', () => {
+	test('matching assignment', () => {
 		const date = '2020-04-22T16:30:00.000Z';
 		const assignments = [
-          {name: 'create', consumerId: 1, producerId: 2, amount: 100, date},
+          {id: 32, consumerId: 1, producerId: 2, amount: 100, region: 'Florida', date},
         ];
         const startDate = '2020-04-24T16:30:00.000Z';
         const endDate = '2020-05-01T16:30:00.000Z';
 
 		assert.deepEqual(assignmentsCopy({ assignments, startDate, endDate }), [
-          {name: 'create', consumerId: 1, producerId: 2, amount: 100, date: '2020-04-29T16:30:00Z' },
+          {consumerId: 1, producerId: 2, amount: 100, region: 'Florida', date: '2020-04-29T16:30:00Z' },
         ]);
 	});
 
-	test('on one matching assignment - two week range', () => {
+	test('no matching assignment - end date out of range', () => {
 		const date = '2020-04-22T16:30:00.000Z';
 		const assignments = [
-          {name: 'create', consumerId: 1, producerId: 2, amount: 100, date},
+          {id: 32, consumerId: 1, producerId: 2, amount: 100, region: 'Florida', date},
         ];
         const startDate = '2020-04-24T16:30:00.000Z';
-        const endDate = '2020-05-08T16:30:00.000Z';
+        const endDate = '2020-04-28T16:30:00.000Z';
 
-		assert.deepEqual(assignmentsCopy({ assignments, startDate, endDate }), [
-          {name: 'create', consumerId: 1, producerId: 2, amount: 100, date: '2020-04-29T16:30:00Z' },
-          {name: 'create', consumerId: 1, producerId: 2, amount: 100, date: '2020-05-06T16:30:00Z' },
-        ]);
-	});
+		assert.deepEqual(assignmentsCopy({ assignments, startDate, endDate }), []);
+    });
 
-	test('on one matching assignment - leap year', () => {
-		const date = '2020-12-26T16:30:00.000Z';
+	test('no matching assignment - assignment not a week before', () => {
+		const date = '2020-04-16T16:30:00.000Z';
 		const assignments = [
-          {name: 'create', consumerId: 1, producerId: 2, amount: 100, date},
+          {id: 32, consumerId: 1, producerId: 2, amount: 100, region: 'Florida', date},
         ];
-        const startDate = '2020-12-29T16:30:00.000Z';
-        const endDate = '2021-01-11T16:30:00.000Z';
+        const startDate = '2020-04-24T16:30:00.000Z';
+        const endDate = '2020-05-01T16:30:00.000Z';
 
-		assert.deepEqual(assignmentsCopy({ assignments, startDate, endDate }), [
-          {name: 'create', consumerId: 1, producerId: 2, amount: 100, date: '2021-01-02T16:30:00Z' },
-          {name: 'create', consumerId: 1, producerId: 2, amount: 100, date: '2021-01-09T16:30:00Z' },
-        ]);
-	});
+		assert.deepEqual(assignmentsCopy({ assignments, startDate, endDate }), []);
+    });
 });
