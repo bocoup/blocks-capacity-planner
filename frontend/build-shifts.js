@@ -12,7 +12,7 @@ export default function buildShifts({startDate, endDate, assignments}) {
     }
 
     while (!current.isSame(end, 'day')) {
-        for (const timeOfDay of ['afternoon', 'evening']) {
+        for (const timeOfDay of ['breakfast', 'lunch', 'dinner', 'late night']) {
             shifts.push({
                 date: current.format('YYYY-MM-DD'),
                 day: current.format('dddd'),
