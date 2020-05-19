@@ -193,10 +193,16 @@ export default function ShiftView({shift, producers, consumers, producerDisplay,
         );
     }).filter((row) => !!row);
 
-    let content;
+    // The container's CSS `height` must be explicitly set only in cases where
+    // overflow is expected. `max-height` is not appropriate for this situation
+    // because it will cause the vertical scroll bar to be assigned to the
+    // container itself (as opposed to the child which exceeds the boundary).
+    let height, content;
     if (consumerRows.length === 0) {
+        height = 'auto';
         content = <p>No consumers found for this period.</p>;
     } else {
+        height = '90%';
         content = (
             <div style={{height: '100%', overflowY: 'auto'}}>
                 <Box style={{
@@ -252,7 +258,7 @@ export default function ShiftView({shift, producers, consumers, producerDisplay,
 
     return (
         <DndProvider backend={Backend}>
-            <Box style={{height: '90%', display: 'flex', flexDirection: 'column'}}>
+            <Box style={{height, display: 'flex', flexDirection: 'column'}}>
                 <header className="clearfix">
                     <Heading as="h3" style={{float: 'left'}}>
                         {shift.day} {shift.timeOfDay}
