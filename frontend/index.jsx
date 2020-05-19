@@ -12,6 +12,7 @@ import React, {useState} from 'react';
 
 import Chooser from './chooser';
 import Settings from './settings';
+import UpgradeGuide from './upgrade-guide';
 
 loadCSSFromString(`
 	.clearfix:after {
@@ -164,6 +165,8 @@ function CapacityPlanner() {
                 <Button onClick={() => setIsShowingSettings(true)}>
 					Open the configuration page
                 </Button>
+
+                <UpgradeGuide displayText={true} />
             </Box>
         );
     }

@@ -10,6 +10,7 @@ import moment from 'moment';
 
 import buildShifts from './build-shifts';
 import priceAssignments from './price-assignments';
+import UpgradeGuide from './upgrade-guide';
 import Constraints from './constraints';
 import ShiftView from './shift-view';
 
@@ -118,6 +119,7 @@ export default function Chooser({producers, consumers, assignments, onAssign}) {
                 >
 					Schedule constraints
                 </Button>
+                <UpgradeGuide marginRight={3} />
 
                 <Box flexGrow={1} paddingRight={3}>
                     <ProgressBar progress={cost/budget} barColor={barColor} style={{height: '1em'}} />
