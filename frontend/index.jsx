@@ -172,6 +172,7 @@ function CapacityPlanner() {
         id: record.id,
         name: record.name,
         need: record.getCellValue(consumerFields.need),
+        region: record.getCellValue(consumerFields.region),
         // "times" is a linked record. Although `selectLinkedRecordsFromCell`
         // is technically more appropriate, it can't be used in a synchronous
         // context. Instead, operate on each record's name (which is available

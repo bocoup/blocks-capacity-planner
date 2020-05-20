@@ -1,6 +1,6 @@
 import moment from 'moment';
 
-export default function assignmentsCopy({ assignments, startDate, endDate }) {
+export default function assignmentsCopy({ assignments, consumers, startDate, endDate }) {
 
     const assignmentToCreate = [];
     const start = moment.utc(startDate);
@@ -12,12 +12,14 @@ export default function assignmentsCopy({ assignments, startDate, endDate }) {
         })
         .forEach((assignment) => {
             const date = moment.utc(assignment.date).add(7, 'days').format();
+            const consumerId = assignment.consumerId;
+            const consumer = consumers.find(consumer => consumer.id === consumerId);
 
             if (date < endDate) {
                 assignmentToCreate.push({
-                    consumerId: assignment.consumerId,
+                    consumerId: consumerId,
                     producerId: assignment.producerId,
-                    region: assignment.region,
+                    region: consumer && consumer.region,
                     amount: assignment.amount,
                     date: date
                 });

@@ -84,7 +84,7 @@ export default function Chooser({producers, consumers, assignments, onBulkAssign
 
     const isCopyDisabled = areAssignmentsPresentWithinConstraints || areConstraintsGreaterThanAWeek;
 
-    const copyAssignments = () => onBulkAssign(assignmentsCopy({assignments, startDate, endDate}))
+    const copyAssignments = () => onBulkAssign(assignmentsCopy({assignments, consumers, startDate, endDate}))
 
     const constraints = isShowingConstraints ?
         <Constraints
