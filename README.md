@@ -16,7 +16,7 @@ visualize, manipulate and process data from that base.
 - **producer** - an entity described by: "name" (a string value), "capacity"
   (an integer value), "price" (a floating point number), and "times" (one or
   more day-of-week/time-of-day pairs)
-- **shift** - a day of the week and a time of day, e.g. "Tuesday afternoon"
+- **shift** - a day of the week and a meal time, e.g. "Tuesday lunch"
 
 This block was initially developed for use by volunteer organizers during the
 covid-19 pandemic to plan weekly schedules for meal deliveries from restaurants
