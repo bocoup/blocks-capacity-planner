@@ -76,9 +76,9 @@ export default function Chooser({producers, consumers, assignments, onBulkAssign
     );
 
     const areAssignmentsPresentWithinConstraints = assignments
-        .filter((assignment) => {
+        .some((assignment) => {
             return assignment.date >= startDate && assignment.date <= endDate
-        }).length > 0;
+        });
 
     const areConstraintsGreaterThanAWeek = moment.utc(startDate).add(7, 'days') < moment.utc(endDate);
 
