@@ -238,7 +238,7 @@ export default function ShiftView({shift, producers, consumers, producerDisplay,
                         marginLeft: '20%',
                         width: '80%',
                         paddingLeft: '1em',
-                        height: '100%',
+                        maxHeight: '100%',
                         overflowY: 'auto'
                     }}>
                     <thead>
