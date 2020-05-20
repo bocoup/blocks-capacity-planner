@@ -126,7 +126,7 @@ export default function Chooser({producers, consumers, assignments, onBulkAssign
                 </Box>
 
                 <Tooltip
-                    content={areAssignmentsPresentWithinConstraints ? "To enable remove assignments from current schedule." : (areConstraintsGreaterThanAWeek ? "To enable reduce scheduled constraints to a week." : '')}
+                    content={areAssignmentsPresentWithinConstraints ? "To enable, remove assignments from current schedule." : (areConstraintsGreaterThanAWeek ? "To enable, reduce scheduled constraints to a week." : '')}
 
                 >
                     {/* This extra div is needed because otherwise the Tooltip isn't shown when the Button is disabled. However, adding it throws a warning. */}
