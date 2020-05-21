@@ -217,16 +217,19 @@ function CapacityPlanner() {
             return consumerIds.has(consumerId) && producerIds.has(producerId);
         });
 
-    const bulkCreateAssignments = async({ assignments }) => {
+    const bulkCreateAssignments = async({ assignments, consumers }) => {
         const records = assignments.map((assignment) =>
         {
+            const consumerId = assignment.consumerId;
+            const consumer = consumers.find(consumer => consumer.id === consumerId);
+
             return {
                 fields: {
                     [assignmentFields.date]: assignment.date,
-                    [assignmentFields.consumer]: [{id: assignment.consumerId}],
+                    [assignmentFields.consumer]: [{id: consumerId}],
                     [assignmentFields.producer]: [{id: assignment.producerId}],
                     [assignmentFields.amount]: assignment.amount,
-                    [assignmentFields.region]: assignment.region,
+                    [assignmentFields.region]: consumer && consumer.region,
                 }
             }
         });
@@ -249,7 +252,7 @@ function CapacityPlanner() {
         consumers={consumers}
         producers={producers}
         assignments={assignments}
-        onBulkAssign={(assignments) => bulkCreateAssignments({ assignments })}
+        onBulkAssign={(assignments, consumers) => bulkCreateAssignments({ assignments, consumers })}
         onAssign={(operations) => {
             operations.forEach((operation) => {
                 execute({
