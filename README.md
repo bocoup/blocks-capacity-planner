@@ -40,6 +40,16 @@ This application interprets all dates in terms of Coordinated Universal Time
 5. From the root of your new block, run `block run --remote <YOUR_REMOTE_NAME>`.
 6. Paste the uri that it gives you into the 'edit block' input back on airtable.com.
 
+## How to run the automated tests
+
+After cloning this repository, install the dependencies with the following
+command:
+
+    npm install
+
+Then, execute the following command to run the tests:
+
+    npm test
 
 ## Conduct
 
