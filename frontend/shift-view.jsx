@@ -1,6 +1,5 @@
 import React, {useCallback} from 'react';
-import { DndProvider, useDrag, useDrop } from 'react-dnd';
-import Backend from 'react-dnd-html5-backend';
+import { useDrag, useDrop } from 'react-dnd';
 import {
     Box,
     Heading,
@@ -243,7 +242,7 @@ export default function ShiftView({shift, producers, consumers, producerDisplay,
     }
 
     return (
-        <DndProvider backend={Backend}>
+        <Box>
             <header className="clearfix">
                 <Heading as="h3" style={{float: 'left'}}>
                     {shift.day} {shift.timeOfDay}
@@ -254,6 +253,6 @@ export default function ShiftView({shift, producers, consumers, producerDisplay,
             <Box marginBottom={4} style={{position: 'relative'}}>
                 {content}
             </Box>
-        </DndProvider>
+        </Box>
     );
 }
