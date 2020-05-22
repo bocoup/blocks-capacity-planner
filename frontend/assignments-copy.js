@@ -3,12 +3,11 @@ import moment from 'moment';
 export default function assignmentsCopy({ assignments, startDate, endDate }) {
 
     const assignmentToCreate = [];
-    const start = moment.utc(startDate);
+    const prevStart = moment.utc(startDate).subtract(7, 'days').format();
 
     assignments
         .filter((assignment) => {
-            return assignment.date >= start.subtract(7, 'days').format() &&
-        assignment.date < startDate
+            return assignment.date >= prevStart && assignment.date < startDate;
         })
         .forEach((assignment) => {
             const date = moment.utc(assignment.date).add(7, 'days').format();
