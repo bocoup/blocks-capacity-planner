@@ -60,7 +60,7 @@ export default function ConfirmConstraints({
 
                 <Box >
                     <Text style={{fontWeight: 800}}>Set the dates</Text>
-                    <FormField label="Start date" width="50%" paddingRight={1} style={{float: 'left'}}>
+                    <FormField label="Start" width="50%" paddingRight={1} style={{float: 'left'}}>
                         <Input
                             style={{width: 'auto'}}
                             type="date"
@@ -69,7 +69,7 @@ export default function ConfirmConstraints({
                         />
                     </FormField>
 
-                    <FormField label="End date" width="50%" paddingLeft={1} style={{float: 'left'}}>
+                    <FormField label="End" width="50%" paddingLeft={1} style={{float: 'left'}}>
                         <Input
                             style={{width: 'auto'}}
                             type="date"
@@ -80,7 +80,7 @@ export default function ConfirmConstraints({
                 </Box>
                 <Box>
                     <Text style={{fontWeight: 800}}>Set the budget</Text>
-                    <FormField label="Budget" width="100%">
+                    <FormField label="Dollar amount" width="100%">
                         <div style={{display: 'block'}}>
                             $<Input
                                 type="number"
