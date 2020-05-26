@@ -196,7 +196,9 @@ export default function ShiftView({shift, producers, consumers, producerDisplay,
                 onAssign={assign}
                 producerDisplay={producerDisplay} />
         );
-    }).filter((row) => !!row);
+    }).filter((row) => !!row).sort((rowA, rowB) => {
+        return rowA.props.time > rowB.props.time ? 1 : -1;
+    });
 
     // The container's CSS `height` must be explicitly set only in cases where
     // overflow is expected. `max-height` is not appropriate for this situation
