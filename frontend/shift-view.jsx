@@ -198,66 +198,82 @@ export default function ShiftView({shift, producers, consumers, producerDisplay,
         );
     }).filter((row) => !!row);
 
-    let content;
+    // The container's CSS `height` must be explicitly set only in cases where
+    // overflow is expected. `max-height` is not appropriate for this situation
+    // because it will cause the vertical scroll bar to be assigned to the
+    // container itself (as opposed to the child which exceeds the boundary).
+    let height, content;
     if (consumerRows.length === 0) {
+        height = 'auto';
         content = <p>No consumers found for this period.</p>;
     } else {
-        content = <>
-            <Box style={{
-                position: 'absolute',
-                top: 0,
-                bottom: 0,
-                left: 0,
-                width: '20%',
-                overflowY: 'auto'
-            }}>
-                <AssignmentDropTarget
-                    consumerId={null}
-                    accept={id}
-                    onAssign={assign}
-                >
-                    <Heading as="h4" style={{fontSize: '1em'}}>
-						unassigned
-                    </Heading>
-
-                    <AssignmentList
+        height = '90%';
+        content = (
+            <div style={{height: '100%', overflowY: 'auto'}}>
+                <Box style={{
+                    position: 'absolute',
+                    top: 0,
+                    bottom: 0,
+                    left: 0,
+                    width: '20%',
+                    overflowY: 'auto'
+                }}>
+                    <AssignmentDropTarget
                         consumerId={null}
-                        producers={producers}
-                        assignments={nullAssignments}
-                        display={producerDisplay}
-                        type={id}
-                    />
-                </AssignmentDropTarget>
-            </Box>
+                        accept={id}
+                        onAssign={assign}
+                    >
+                        <Heading as="h4" style={{fontSize: '1em'}}>
+                            unassigned
+                        </Heading>
 
-            <table
-                cellSpacing="0"
-                style={{marginLeft: '20%', width: '80%', paddingLeft: '1em'}}>
-                <thead>
-                    <tr>
-                        <td>Name</td>
-                        <td>Time</td>
-                        <td colSpan="3" style={{textAlign: 'center'}}>
-							Fulfillment
-                        </td>
-                    </tr>
-                </thead>
-                {consumerRows}
-            </table>
-        </>;
+                        <AssignmentList
+                            consumerId={null}
+                            producers={producers}
+                            assignments={nullAssignments}
+                            display={producerDisplay}
+                            type={id}
+                        />
+                    </AssignmentDropTarget>
+                </Box>
+
+                <table
+                    cellSpacing="0"
+                    style={{
+                        marginLeft: '20%',
+                        width: '80%',
+                        paddingLeft: '1em',
+                        maxHeight: '100%',
+                        overflowY: 'auto'
+                    }}>
+                    <thead>
+                        <tr>
+                            <td>Name</td>
+                            <td>Time</td>
+                            <td colSpan="3" style={{textAlign: 'center'}}>
+                                Fulfillment
+                            </td>
+                        </tr>
+                    </thead>
+                    {consumerRows}
+                </table>
+            </div>
+        );
     }
 
     return (
         <DndProvider backend={Backend}>
-            <header className="clearfix">
-                <Heading as="h3" style={{float: 'left'}}>
-                    {shift.day} {shift.timeOfDay}
-                </Heading>
-                <span style={{float: 'right'}}>{shift.date}</span>
-            </header>
+            <Box style={{height, display: 'flex', flexDirection: 'column'}}>
+                <header className="clearfix">
+                    <Heading as="h3" style={{float: 'left'}}>
+                        {shift.day} {shift.timeOfDay}
+                    </Heading>
+                    <span style={{float: 'right'}}>{shift.date}</span>
+                </header>
 
-            <Box marginBottom={4} style={{position: 'relative'}}>
-                {content}
+                <Box marginBottom={4} style={{flexGrow: 1, position: 'relative', overflowY: 'auto'}}>
+                    {content}
+                </Box>
             </Box>
         </DndProvider>
     );
