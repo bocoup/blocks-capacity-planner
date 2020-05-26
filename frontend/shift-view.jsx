@@ -40,6 +40,11 @@ function AssignmentList({consumerId, style, producers, assignments, display, typ
                 type={type}
                 display={display} />));
 
+    // Sort items by name
+    items.sort((itemA, itemB) => {
+        return itemA.props.producer.name > itemB.props.producer.name ? 1 : -1;
+    });
+
     return (
         <ul style={{listStyleType: 'none', margin: 0, padding: 0, ...style}}>
             {items}
