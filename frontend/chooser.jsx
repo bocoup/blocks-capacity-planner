@@ -1,10 +1,13 @@
 import {
     Box,
     Button,
+    Dialog,
     FormField,
+    Heading,
     ProgressBar,
     Select,
     Tooltip,
+    Text,
 } from '@airtable/blocks/ui';
 import React, {useMemo, useState} from 'react';
 import moment from 'moment';
@@ -54,6 +57,7 @@ export default function Chooser({producers, consumers, assignments, onBulkAssign
 
     const [sort, setSort] = useState('name');
     const [producerDisplay, setProducerDisplay] = useState(null);
+    const [error, setError] = useState(false);
     const [budget, setBudget] = useState(10 * 1000);
     const [startDate, setStartDate] = useState(
         () => moment().set('day', 0).startOf('day').utc().startOf('day').add(1, 'week').format()
@@ -86,6 +90,16 @@ export default function Chooser({producers, consumers, assignments, onBulkAssign
 
     const copyAssignments = () => onBulkAssign(assignmentsCopy({assignments, startDate, endDate}), consumers);
 
+    const catchErrors = (f) => {
+        return function() {
+            try {
+                f.apply(this, arguments);
+            } catch (e) {
+                setError(e);
+            }
+        }
+    };
+
     const constraints = isShowingConstraints ?
         <Constraints
             onClose={() => setShowingConstraints(false)}
@@ -108,7 +122,7 @@ export default function Chooser({producers, consumers, assignments, onBulkAssign
                         consumers={consumers}
                         producers={producers}
                         producerDisplay={producerDisplay}
-                        onAssign={onAssign} />
+                        onAssign={catchErrors(onAssign)} />
                 ))}
             </Box>
 
@@ -134,7 +148,7 @@ export default function Chooser({producers, consumers, assignments, onBulkAssign
                         <Button
                             marginRight={3}
                             disabled={isCopyDisabled}
-                            onClick={copyAssignments}
+                            onClick={catchErrors(copyAssignments)}
                         >
                                                         Copy Previous Schedule
                         </Button>
@@ -153,6 +167,16 @@ export default function Chooser({producers, consumers, assignments, onBulkAssign
 					${cost} of ${budget}
                 </Box>
             </Box>
+            {error && (
+                <Dialog onClose={() => setError(null)} width="320px">
+                    <Dialog.CloseButton />
+                    <Heading>Error:</Heading>
+                    <Text variant="paragraph">
+                        {error.message}
+                    </Text>
+                    <Button onClick={() => setError(null)} variant="danger">Close</Button>
+                </Dialog>
+            )}
         </Box>
     );
 }
