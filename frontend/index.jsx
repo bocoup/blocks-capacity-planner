@@ -172,6 +172,7 @@ function CapacityPlanner() {
         id: record.id,
         name: record.name,
         need: record.getCellValue(consumerFields.need),
+        region: record.getCellValue(consumerFields.region),
         // "times" is a linked record. Although `selectLinkedRecordsFromCell`
         // is technically more appropriate, it can't be used in a synchronous
         // context. Instead, operate on each record's name (which is available
@@ -216,10 +217,42 @@ function CapacityPlanner() {
             return consumerIds.has(consumerId) && producerIds.has(producerId);
         });
 
+    const bulkCreateAssignments = async({ assignments, consumers }) => {
+        const records = assignments.map((assignment) =>
+        {
+            const consumerId = assignment.consumerId;
+            const consumer = consumers.find(consumer => consumer.id === consumerId);
+
+            return {
+                fields: {
+                    [assignmentFields.date]: assignment.date,
+                    [assignmentFields.consumer]: [{id: consumerId}],
+                    [assignmentFields.producer]: [{id: assignment.producerId}],
+                    [assignmentFields.amount]: assignment.amount,
+                    [assignmentFields.region]: consumer && consumer.region,
+                }
+            }
+        });
+
+        let i = 0;
+        const BATCH_SIZE = 50;
+
+        while (i < records.length) {
+            const createBatch = records.slice(i, i + BATCH_SIZE);
+            // await is used to wait for the create to finish saving to Airtable
+            // servers before continuing. This means we'll stay under the rate
+            // limit for writes.
+            await assignmentsTable.createRecordsAsync(createBatch);
+            i += BATCH_SIZE;
+        }
+    };
+
+
     return <Chooser
         consumers={consumers}
         producers={producers}
         assignments={assignments}
+        onBulkAssign={(assignments, consumers) => bulkCreateAssignments({ assignments, consumers })}
         onAssign={(operations) => {
             operations.forEach((operation) => {
                 execute({

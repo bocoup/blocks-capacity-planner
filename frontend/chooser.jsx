@@ -3,6 +3,8 @@ import {
     FormField,
     ProgressBar,
     Select,
+    Tooltip,
+    Button
 } from '@airtable/blocks/ui';
 import React, {useMemo, useState} from 'react';
 import moment from 'moment';
@@ -13,6 +15,7 @@ import buildShifts from './build-shifts';
 import priceAssignments from './price-assignments';
 import Constraints from './constraints';
 import ShiftView from './shift-view';
+import assignmentsCopy from './assignments-copy';
 
 const containerStyle = {
     position: 'absolute',
@@ -46,7 +49,7 @@ const producerDisplayOptions = [
     {value: 'descriptor', label: 'Descriptor'}
 ];
 
-export default function Chooser({producers, consumers, assignments, onAssign}) {
+export default function Chooser({producers, consumers, assignments, onBulkAssign, onAssign}) {
     consumers = annotateExtremes(consumers, 'need');
     producers = annotateExtremes(producers, 'capacity');
     producers = annotateExtremes(producers, 'price');
@@ -73,6 +76,17 @@ export default function Chooser({producers, consumers, assignments, onAssign}) {
         [startDate, endDate, assignments]
     );
 
+    const areAssignmentsPresentWithinConstraints = assignments
+        .some((assignment) => {
+            return assignment.date >= startDate && assignment.date <= endDate
+        });
+
+    const areConstraintsGreaterThanAWeek = moment.utc(startDate).add(7, 'days') < moment.utc(endDate);
+
+    const isCopyDisabled = areAssignmentsPresentWithinConstraints || areConstraintsGreaterThanAWeek;
+
+    const copyAssignments = () => onBulkAssign(assignmentsCopy({assignments, startDate, endDate}), consumers);
+
     return (
         <DndProvider backend={Backend}>
             <Box style={{flexDirection: 'column', ...containerStyle}}>
@@ -84,7 +98,6 @@ export default function Chooser({producers, consumers, assignments, onAssign}) {
                     budget={budget}
                     onBudgetChange={setBudget}
                 />
-
                 <Box padding={2} style={{overflowY: 'scroll'}}>
                     {shifts.map((shift) => (
                         <ShiftView key={shift.date + shift.timeOfDay}
@@ -108,6 +121,23 @@ export default function Chooser({producers, consumers, assignments, onAssign}) {
                             <Select options={producerDisplayOptions} value={producerDisplay} onChange={setProducerDisplay} />
                         </FormField>
                     </Box>
+
+                    <Tooltip
+                        content={areAssignmentsPresentWithinConstraints ? "To enable, remove assignments from current schedule." : (areConstraintsGreaterThanAWeek ? "To enable, reduce scheduled constraints to a week." : '')}
+
+                    >
+                        {/* This extra div is needed because otherwise the Tooltip isn't shown when the Button is disabled. However, adding it throws a warning. */}
+                        <div>
+                            <Button
+                                marginRight={3}
+                                disabled={isCopyDisabled}
+                                onClick={copyAssignments}
+                            >
+                                                            Copy Previous Schedule
+                            </Button>
+                        </div>
+                    </Tooltip>
+
                     <Box flexGrow={1} paddingRight={3}>
                         <ProgressBar progress={cost/budget} barColor={barColor} style={{height: '1em'}} />
                         ${cost} of ${budget}

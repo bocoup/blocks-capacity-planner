@@ -38,98 +38,98 @@ suite('isTimeOfDay', () => {
 
     suite('negative', () => {
         // Late night
-        test('00:00', () => {
+        test('00:00 - not breakfast', () => {
             assert.equal(isTimeOfDay('00:00', 'breakfast'), false);
         });
-        test('00:00', () => {
+        test('00:00 - not lunch', () => {
             assert.equal(isTimeOfDay('00:00', 'lunch'), false);
         });
-        test('00:00', () => {
+        test('00:00 - not dinner', () => {
             assert.equal(isTimeOfDay('00:00', 'dinner'), false);
         });
-        test('04:59', () => {
+        test('04:59 - not breakfast', () => {
             assert.equal(isTimeOfDay('04:49', 'breakfast'), false);
         });
-        test('04:59', () => {
+        test('04:59 - not lunch', () => {
             assert.equal(isTimeOfDay('04:49', 'lunch'), false);
         });
-        test('04:59', () => {
+        test('04:59 - not dinner', () => {
             assert.equal(isTimeOfDay('04:49', 'dinner'), false);
         });
         // Breakfast
-        test('05:00', () => {
+        test('05:00 - not lunch', () => {
             assert.equal(isTimeOfDay('05:00', 'lunch'), false);
         });
-        test('05:00', () => {
+        test('05:00 - not dinner', () => {
             assert.equal(isTimeOfDay('05:00', 'dinner'), false);
         });
-        test('05:00', () => {
+        test('05:00 - not late night', () => {
             assert.equal(isTimeOfDay('05:00', 'late night'), false);
         });
-        test('10:59', () => {
+        test('10:59 - not lunch', () => {
             assert.equal(isTimeOfDay('10:59', 'lunch'), false);
         });
-        test('10:59', () => {
+        test('10:59 - not dinner', () => {
             assert.equal(isTimeOfDay('10:59', 'dinner'), false);
         });
-        test('10:59', () => {
+        test('10:59 - not late night', () => {
             assert.equal(isTimeOfDay('10:59', 'late night'), false);
         });
         // Lunch
-        test('11:00', () => {
+        test('11:00 - not breakfast', () => {
             assert.equal(isTimeOfDay('11:00', 'breakfast'), false);
         });
-        test('11:00', () => {
+        test('11:00 - not dinner', () => {
             assert.equal(isTimeOfDay('11:00', 'dinner'), false);
         });
-        test('11:00', () => {
+        test('11:00 - not late night', () => {
             assert.equal(isTimeOfDay('11:00', 'late night'), false);
         });
-        test('15:59', () => {
+        test('15:59 - not breakfast', () => {
             assert.equal(isTimeOfDay('15:59', 'breakfast'), false);
         });
-        test('15:59', () => {
+        test('15:59 - not dinner', () => {
             assert.equal(isTimeOfDay('15:59', 'dinner'), false);
         });
-        test('15:59', () => {
+        test('15:59 - not late night', () => {
             assert.equal(isTimeOfDay('15:59', 'late night'), false);
         });
         // Dinner
-        test('16:00', () => {
+        test('16:00 - not breakfast', () => {
             assert.equal(isTimeOfDay('16:00', 'breakfast'), false);
         });
-        test('16:00', () => {
+        test('16:00 - not lunch', () => {
             assert.equal(isTimeOfDay('16:00', 'lunch'), false);
         });
-        test('16:00', () => {
+        test('16:00 - not late night', () => {
             assert.equal(isTimeOfDay('16:00', 'late night'), false);
         });
-        test('20:59', () => {
+        test('20:59 - not breakfast', () => {
             assert.equal(isTimeOfDay('20:59', 'breakfast'), false);
         });
-        test('20:59', () => {
+        test('20:59 - not lunch', () => {
             assert.equal(isTimeOfDay('20:59', 'lunch'), false);
         });
-        test('20:59', () => {
+        test('20:59 - not late night', () => {
             assert.equal(isTimeOfDay('20:59', 'late night'), false);
         });
         // Late night
-        test('21:00', () => {
+        test('21:00 - not breakfast', () => {
             assert.equal(isTimeOfDay('21:00', 'breakfast'), false);
         });
-        test('21:00', () => {
+        test('21:00 - not lunch', () => {
             assert.equal(isTimeOfDay('21:00', 'lunch'), false);
         });
-        test('21:00', () => {
+        test('21:00 - not dinner', () => {
             assert.equal(isTimeOfDay('21:00', 'dinner'), false);
         });
-        test('23:59', () => {
+        test('23:59 - not breakfast', () => {
             assert.equal(isTimeOfDay('23:59', 'breakfast'), false);
         });
-        test('23:59', () => {
+        test('23:59 - not lunch', () => {
             assert.equal(isTimeOfDay('23:59', 'lunch'), false);
         });
-        test('23:59', () => {
+        test('23:59 - not dinner', () => {
             assert.equal(isTimeOfDay('23:59', 'dinner'), false);
         });
     });
