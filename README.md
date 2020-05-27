@@ -51,6 +51,9 @@ Then, execute the following command to run the tests:
 
     npm test
 
+If you want to use a debugger [chrome://inspect/](chrome://inspect/#devices) and click "Open dedicated
+DevTools for Node" and then run `node --inspect --experimental-modules $(npm bin)/_mocha --ui tdd test`.
+
 ## Conduct
 
 All contributors are expected to adhere to the project's code of conduct,
