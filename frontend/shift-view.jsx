@@ -223,8 +223,8 @@ export default function ShiftView({shift, producers, consumers, producerDisplay,
                         accept={id}
                         onAssign={assign}
                     >
-                        <Heading as="h4" style={{fontSize: '1em'}}>
-                            unassigned
+                        <Heading as="h4" style={{fontSize: '1em', fontWeight: 'bold'}}>
+                            Ready to Deliver Restaurants
                         </Heading>
 
                         <AssignmentList
@@ -246,10 +246,12 @@ export default function ShiftView({shift, producers, consumers, producerDisplay,
                         maxHeight: '100%',
                         overflowY: 'auto'
                     }}>
+                    <caption style={{textAlign: 'left', fontWeight: 'bold', paddingLeft: '10px', paddingBottom: '10px'}}>Recipients</caption>
                     <thead>
                         <tr>
                             <td>Name</td>
                             <td>Time</td>
+                            <td>Amount</td>
                             <td colSpan="3" style={{textAlign: 'center'}}>
                                 Fulfillment
                             </td>
