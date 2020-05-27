@@ -10,7 +10,7 @@ import {
 
 import assignmentInstructions from './assignment-instructions';
 import buildNullAssignments from './build-null-assignments';
-import isTimeOfDay from './is-time-of-day';
+import { isTimeOfDay, compareTime } from './time-utils';
 import Rating from './rating';
 
 function AssignmentDropTarget({as, children, consumerId, onAssign, accept, ...rest}) {
@@ -197,7 +197,7 @@ export default function ShiftView({shift, producers, consumers, producerDisplay,
                 producerDisplay={producerDisplay} />
         );
     }).filter((row) => !!row).sort((rowA, rowB) => {
-        return rowA.props.time > rowB.props.time ? 1 : -1;
+        return compareTime(rowA.props.time, rowB.props.time)
     });
 
     // The container's CSS `height` must be explicitly set only in cases where
