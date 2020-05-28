@@ -90,15 +90,15 @@ export default function Chooser({producers, consumers, assignments, onBulkAssign
     return (
         <DndProvider backend={Backend}>
             <Box style={{flexDirection: 'column', ...containerStyle}}>
-                <Constraints
-                    startDate={startDate}
-                    onStartDateChange={setStartDate}
-                    endDate={endDate}
-                    onEndDateChange={setEndDate}
-                    budget={budget}
-                    onBudgetChange={setBudget}
-                />
                 <Box padding={2} style={{overflowY: 'scroll'}}>
+                    <Constraints
+                        startDate={startDate}
+                        onStartDateChange={setStartDate}
+                        endDate={endDate}
+                        onEndDateChange={setEndDate}
+                        budget={budget}
+                        onBudgetChange={setBudget}
+                    />
                     {shifts.map((shift) => (
                         <ShiftView key={shift.date + shift.timeOfDay}
                             shift={shift}
