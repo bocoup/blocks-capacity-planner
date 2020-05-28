@@ -252,7 +252,7 @@ export default function ShiftView({shift, producers, consumers, producerDisplay,
                             <td>Name</td>
                             <td>Time</td>
                             <td>Amount</td>
-                            <td colSpan="3" style={{textAlign: 'center'}}>
+                            <td colSpan="2" style={{textAlign: 'center'}}>
                                 Fulfillment
                             </td>
                         </tr>
