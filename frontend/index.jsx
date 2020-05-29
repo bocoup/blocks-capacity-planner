@@ -65,13 +65,19 @@ const execute = async ({
             queryResult.unloadData();
         }
 
-        assignmentsTable.createRecordAsync({
+        const recordToCreate = {
             [assignmentFields.date]: operation.date,
             [assignmentFields.consumer]: [{id: operation.consumerId}],
             [assignmentFields.producer]: [{id: operation.producerId}],
             [assignmentFields.amount]: operation.amount,
             [assignmentFields.region]: region,
-        });
+        };
+
+        if (assignmentsTable.hasPermissionToCreateRecord) {
+            assignmentsTable.createRecordAsync(recordToCreate);
+        } else {
+            throw Error("You need Editor or Creator permissions to use this block to create assignments. https://support.airtable.com/hc/en-us/articles/202887099-Permissions-overview.");
+        }
     } else if (operation.name === 'delete') {
         assignmentsTable.deleteRecordAsync(operation.id);
     } else if (operation.name === 'update') {
