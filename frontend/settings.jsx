@@ -237,7 +237,7 @@ export default function Settings({consumerName, producerName, assignmentName}) {
                     style={fieldStyle}>
                     <div style={{'font-size': 'x-small', 'padding-bottom': '5px'}}>
                         Use this to specify additional attributes that are
-                        part of your decision making process, such as "Cuisine".
+                        part of your decision making process, such as 'Cuisine'.
                     </div>
                     <FieldPickerSynced
                         globalConfigKey="producers:descriptor"
