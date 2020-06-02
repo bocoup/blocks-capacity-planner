@@ -1,38 +1,38 @@
 import assert from 'assert';
 
-import { isTimeOfDay, compareTime } from '../frontend/time-utils.js';
+import { isTimeOfDay, compareTimeWithinShift } from '../frontend/time-utils.js';
 
 suite('Time Utils', () => {
-    suite('compareTime', () => {
+    suite('compareTimeWithinShift', () => {
         test('midnight', () => {
-            assert.equal(compareTime('00:00', '00:01'), -1);
+            assert.equal(compareTimeWithinShift('00:00', '00:01'), -1);
         });
         test('midnight - ordered', () => {
-            assert.equal(compareTime('00:01', '00:00'), 1);
+            assert.equal(compareTimeWithinShift('00:01', '00:00'), 1);
         });
         test('before day transition', () => {
-            assert.equal(compareTime('04:48', '04:49'), -1);
+            assert.equal(compareTimeWithinShift('04:48', '04:49'), -1);
         });
         test('before day transition - ordered', () => {
-            assert.equal(compareTime('04:49', '04:48'), 1);
+            assert.equal(compareTimeWithinShift('04:49', '04:48'), 1);
         });
         test('over day transition - ordered', () => {
-            assert.equal(compareTime('04:49', '05:00'), 1);
+            assert.throws(() => { compareTimeWithinShift('04:49', '05:00') }, Error);
         });
         test('over day transition', () => {
-            assert.equal(compareTime('05:00', '04:49'), -1); // broken
+            assert.throws(() => { compareTimeWithinShift('05:00', '04:49') }, Error);
         });
         test('after day transition', () => {
-            assert.equal(compareTime('05:00', '05:01'), -1);
+            assert.equal(compareTimeWithinShift('05:00', '05:01'), -1);
         });
         test('after day transition - ordered', () => {
-            assert.equal(compareTime('05:01', '05:00'), 1);
+            assert.equal(compareTimeWithinShift('05:01', '05:00'), 1);
         });
         test('late evening - ordered', () => {
-            assert.equal(compareTime('03:43', '22:00'), 1);
+            assert.equal(compareTimeWithinShift('03:43', '22:00'), 1);
         });
         test('late evening', () => {
-            assert.equal(compareTime('22:00', '03:34'), -1); // broken
+            assert.equal(compareTimeWithinShift('22:00', '03:34'), -1);
         });
     });
 
