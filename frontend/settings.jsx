@@ -44,21 +44,13 @@ export default function Settings({consumerName, producerName, assignmentName}) {
             </h1>
 
             <fieldset style={{marginBottom: '1em'}}>
-                <legend>{assignmentName} Table</legend>
-
-                <FormField
-                    style={{width: '80%'}}
-                    label="Specify the table where you want your planned delivieries to go. 
-                    You will need to specifiy the column names in your table so that your planning data
-                    is populated correctly.">
-                </FormField>
+                <legend>{assignmentName} schema</legend>
 
                 <FormField
                     label="Table"
                     style={{width: '48%'}}>
                     <TablePickerSynced globalConfigKey="assignmentsTableId" />
                 </FormField>
-
 
                 <FormField
                     label={`Field for "${consumerName}"`}
@@ -112,14 +104,7 @@ export default function Settings({consumerName, producerName, assignmentName}) {
             </fieldset>
 
             <fieldset style={{marginBottom: '1em'}}>
-                <legend>{consumerName} Table</legend>
-
-                <FormField
-                    style={{width: '80%'}}
-                    label="Specify which table to pull hospital/recipient information from. 
-                    Since recipient tables for chapters are set up differently, specify which columns 
-                    provide relevant information (like number of meals).">
-                </FormField>
+                <legend>{consumerName} schema</legend>
 
                 <FormField
                     label="Table"
@@ -128,11 +113,8 @@ export default function Settings({consumerName, producerName, assignmentName}) {
                 </FormField>
 
                 <FormField
-                    label="Chapter View"
+                    label="View (optional)"
                     style={{width: '48%', display: 'inline-block'}}>
-                    <div style={{'font-size': 'x-small', 'padding-bottom': '5px'}}>
-                        This is required if you want to see data only for your chapter.
-                    </div>
                     <ViewPickerSynced
                         shouldAllowPickingNone={true}
                         globalConfigKey="consumersViewId"
@@ -140,7 +122,7 @@ export default function Settings({consumerName, producerName, assignmentName}) {
                 </FormField>
 
                 <FormField
-                    label={'Demand'}
+                    label={'Field for "Need Size"'}
                     style={fieldStyle}>
                     <FieldPickerSynced
                         globalConfigKey="consumers:need"
@@ -150,7 +132,7 @@ export default function Settings({consumerName, producerName, assignmentName}) {
                 </FormField>
 
                 <FormField
-                    label={'Delivery Times'}
+                    label={'Field for "Times"'}
                     style={fieldStyle}>
                     <FieldPickerSynced
                         globalConfigKey="consumers:times"
@@ -175,14 +157,7 @@ export default function Settings({consumerName, producerName, assignmentName}) {
             </fieldset>
 
             <fieldset style={{marginBottom: '1em'}}>
-                <legend>{producerName} Table</legend>
-
-                <FormField
-                    style={{width: '80%'}}
-                    label="Specify which table to pull restaurant information from. 
-                    Since restaurant tables for chapters are set up differently, specify which columns 
-                    provide relevant information (like number of meals).">
-                </FormField>
+                <legend>{producerName} schema</legend>
 
                 <FormField
                     label="Table"
@@ -191,11 +166,8 @@ export default function Settings({consumerName, producerName, assignmentName}) {
                 </FormField>
 
                 <FormField
-                    label="Chapter View"
+                    label="View (optional)"
                     style={{width: '48%', display: 'inline-block'}}>
-                    <div style={{'font-size': 'x-small', 'padding-bottom': '5px'}}>
-                        This is required if you want to see data only for your chapter.
-                    </div>
                     <ViewPickerSynced
                         shouldAllowPickingNone={true}
                         globalConfigKey="producersViewId"
@@ -233,12 +205,8 @@ export default function Settings({consumerName, producerName, assignmentName}) {
                 </FormField>
 
                 <FormField
-                    label={'Additional Attributes'}
+                    label={'Field for "Descriptor"'}
                     style={fieldStyle}>
-                    <div style={{'font-size': 'x-small', 'padding-bottom': '5px'}}>
-                        Use this to specify additional attributes that are
-                        part of your decision making process, such as "Cuisine".
-                    </div>
                     <FieldPickerSynced
                         globalConfigKey="producers:descriptor"
                         allowedTypes={[FieldType.SINGLE_LINE_TEXT]}
