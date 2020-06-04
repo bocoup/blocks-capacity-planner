@@ -45,13 +45,14 @@ export default function Settings({consumerName, producerName, assignmentName}) {
 
             <fieldset style={{marginBottom: '1em'}}>
                 <legend>{assignmentName} Table</legend>
-
-                <FormField
-                    style={{width: '80%'}}
-                    label="Specify the table where you want your planned delivieries to go. 
-                    You will need to specifiy the column names in your table so that your planning data
-                    is populated correctly.">
-                </FormField>
+                
+                <p
+                    style={{maxWidth: '40em'}}
+                    id="deliveries-description">
+                    Specify the table where you want your planned deliveries to go.
+                    You will need to specify the column names in your table so that 
+                    your planning data is populated correctly.
+                </p>
 
                 <FormField
                     label="Table"
@@ -114,12 +115,13 @@ export default function Settings({consumerName, producerName, assignmentName}) {
             <fieldset style={{marginBottom: '1em'}}>
                 <legend>{consumerName} Table</legend>
 
-                <FormField
-                    style={{width: '80%'}}
-                    label="Specify which table to pull hospital/recipient information from. 
-                    Since recipient tables for chapters are set up differently, specify which columns 
-                    provide relevant information (like number of meals).">
-                </FormField>
+                <p
+                    style={{maxWidth: '40em'}}
+                    id="deliveries-description">
+                    Specify which table to pull hospital/recipient information from. 
+                    Since recipient tables for chapters are set up differently, specify 
+                    which columns provide relevant information (like number of meals).
+                </p>
 
                 <FormField
                     label="Table"
@@ -177,12 +179,14 @@ export default function Settings({consumerName, producerName, assignmentName}) {
             <fieldset style={{marginBottom: '1em'}}>
                 <legend>{producerName} Table</legend>
 
-                <FormField
-                    style={{width: '80%'}}
-                    label="Specify which table to pull restaurant information from. 
-                    Since restaurant tables for chapters are set up differently, specify which columns 
-                    provide relevant information (like number of meals).">
-                </FormField>
+                <p
+                    style={{maxWidth: '40em'}}
+                    id="deliveries-description">
+                    Specify which table to pull restaurant information from. 
+                    Since restaurant tables for chapters are set up differently, 
+                    specify which columns provide relevant information (like number of meals).
+                </p>
+
 
                 <FormField
                     label="Table"
@@ -193,7 +197,7 @@ export default function Settings({consumerName, producerName, assignmentName}) {
                 <FormField
                     label="Chapter View"
                     style={{width: '48%', display: 'inline-block'}}>
-                    <div style={{'font-size': 'x-small', 'padding-bottom': '5px'}}>
+                    <div style={{'font-size': 'x-small', 'padding-bottom': '1em'}}>
                         This is required if you want to see data only for your chapter.
                     </div>
                     <ViewPickerSynced
@@ -235,9 +239,9 @@ export default function Settings({consumerName, producerName, assignmentName}) {
                 <FormField
                     label={'Additional Attributes'}
                     style={fieldStyle}>
-                    <div style={{'font-size': 'x-small', 'padding-bottom': '5px'}}>
+                    <div style={{'font-size': 'x-small', 'padding-bottom': '1em'}}>
                         Use this to specify additional attributes that are
-                        part of your decision making process, such as "Cuisine".
+                        part of your decision making process, such as 'Cuisine'.
                     </div>
                     <FieldPickerSynced
                         globalConfigKey="producers:descriptor"
