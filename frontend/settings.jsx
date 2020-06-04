@@ -43,7 +43,7 @@ export default function Settings({consumerName, producerName, assignmentName}) {
                 Configuration
             </h1>
 
-            <fieldset style={{marginBottom: '1em'}}>
+            <fieldset style={{marginBottom: '1em'}} aria-describedby="deliveries-description">
                 <legend>{assignmentName} Table</legend>
                 
                 <p
@@ -112,12 +112,12 @@ export default function Settings({consumerName, producerName, assignmentName}) {
                 </FormField>
             </fieldset>
 
-            <fieldset style={{marginBottom: '1em'}}>
+            <fieldset style={{marginBottom: '1em'}} aria-describedby="consumers-description">
                 <legend>{consumerName} Table</legend>
 
                 <p
                     style={{maxWidth: '40em'}}
-                    id="deliveries-description">
+                    id="consumers-description">
                     Specify which table to pull hospital/recipient information from. 
                     Since recipient tables for chapters are set up differently, specify 
                     which columns provide relevant information (like number of meals).
@@ -176,12 +176,12 @@ export default function Settings({consumerName, producerName, assignmentName}) {
                 </h3>
             </fieldset>
 
-            <fieldset style={{marginBottom: '1em'}}>
+            <fieldset style={{marginBottom: '1em'}} aria-describedby="producers-description">
                 <legend>{producerName} Table</legend>
 
                 <p
                     style={{maxWidth: '40em'}}
-                    id="deliveries-description">
+                    id="producers-description">
                     Specify which table to pull restaurant information from. 
                     Since restaurant tables for chapters are set up differently, 
                     specify which columns provide relevant information (like number of meals).
