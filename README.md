@@ -61,8 +61,17 @@ maintainers should follow these steps:
 
 1. Obtain the appropriate Airtable Custom Block configuration file(s) which
    describe the Block instances which are intended to be updated
-2. Merge the Git repository's `dev` branch into the `main` branch
-3. Create a Git tag for the merge commit
+2. Merge the Git repository's `dev` branch into the `main` branch. This can be
+   done with the following commands:
+
+       git checkout main
+       git merge --no-ff dev
+
+3. Create a Git tag for the merge commit. For instance, to create a Git tag
+   named "x.x.x", run the following command:
+
+       git tag x.x.x
+
 4. Use the process which is documented on [the Airtable.com Block developer
    guide](https://airtable.com/developers/blocks) for deploying the Block
 
