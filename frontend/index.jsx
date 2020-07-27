@@ -9,6 +9,7 @@ import {
 } from '@airtable/blocks/ui';
 import {base} from '@airtable/blocks';
 import React, {useState} from 'react';
+import moment from 'moment';
 
 import Chooser from './chooser';
 import Settings from './settings';
@@ -179,6 +180,11 @@ function CapacityPlanner() {
         // immediately) to infer the relevant values.
         times: (record.getCellValue(consumerFields.times) || []).map((record) => {
             const [day, time] = record.name.split(/\s*@\s*/);
+            if (!moment(time, 'HH:mm', true).isValid()) {
+                throw new Error(
+                    `Invalid consumer day-and-time: "${record.name}". Times must be expressed with a two-digit hour, a colon, and a two-digit minute (e.g. 09:30).`
+                );
+            }
             return {day, time};
         }),
     }));
