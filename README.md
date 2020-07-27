@@ -72,7 +72,12 @@ maintainers should follow these steps:
 
        git tag x.x.x
 
-4. Use the process which is documented on [the Airtable.com Block developer
+4. Push the new tag to the remote repository. For instance, to push a Git tag
+   named "x.x.x" to a remote named "upstream", run the following command:
+
+       git push upstream x.x.x
+
+5. Use the process which is documented on [the Airtable.com Block developer
    guide](https://airtable.com/developers/blocks) for deploying the Block
 
 ## Conduct
